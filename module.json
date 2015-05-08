@@ -1,0 +1,19 @@
+{
+  "name": "lwm2m-client-mbed",
+  "version": "0.0.1",
+  "description": "mbed specific component for lwm2m-client",
+  "keywords": [],
+  "author": "Yogesh Pande <yogesh.pande@arm.com>",
+  "homepage": "https://github.com/ARMmbed/lwm2m-client-mbed",
+  "licenses": [
+    {
+      "url": "https://spdx.org/licenses/Apache-2.0",
+      "type": "Apache-2.0"
+    }
+  ],
+  "dependencies": {
+    "mbed" : "ARMmbed/mbed-sdk-private",
+    "mbed-net-sockets" : "ARMmbed/mbed-net-sockets#master"
+  },
+  "targetDependencies": {}
+}
