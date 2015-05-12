@@ -1,7 +1,8 @@
 {
   "name": "lwm2m-client-mbed",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "mbed specific component for lwm2m-client",
+  "private": true,
   "keywords": [],
   "author": "Yogesh Pande <yogesh.pande@arm.com>",
   "homepage": "https://github.com/ARMmbed/lwm2m-client-mbed",
@@ -12,8 +13,8 @@
     }
   ],
   "dependencies": {
-    "mbed" : "~3.0.1",
-    "mbed-net-sockets" : "ARMmbed/mbed-net-sockets#~0.1.1"
+    "mbed": "~3.0.1",
+    "mbed-net-sockets": "ARMmbed/mbed-net-sockets#~0.1.1"
   },
   "targetDependencies": {}
 }
