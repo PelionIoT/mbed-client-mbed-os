@@ -1,6 +1,6 @@
 {
   "name": "lwm2m-client-mbed",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "mbed specific component for lwm2m-client",
   "private": true,
   "keywords": [],
@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "mbed": "~3.0.1",
-    "mbed-net-sockets": "ARMmbed/mbed-net-sockets#~0.1.1"
+    "mbed-net-sockets": "~0.1.2"
   },
   "targetDependencies": {}
 }
