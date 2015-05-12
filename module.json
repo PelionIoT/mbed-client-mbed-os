@@ -2,6 +2,7 @@
   "name": "lwm2m-client-mbed",
   "version": "0.0.1",
   "description": "mbed specific component for lwm2m-client",
+  "private" : true,
   "keywords": [],
   "author": "Yogesh Pande <yogesh.pande@arm.com>",
   "homepage": "https://github.com/ARMmbed/lwm2m-client-mbed",
