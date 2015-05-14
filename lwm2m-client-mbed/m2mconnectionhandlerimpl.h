@@ -88,6 +88,11 @@ private:
     void error_handler(socket_error_t error);
 
     /**
+    * @brief Callback handler for socket connect
+    */
+    void M2MConnectionHandlerImpl::connect_handler(socket_error_t error);
+
+    /**
     * @brief Helper function to return NetworkStack for the stack type
     * @param stack_type, Internal Stack type for Socket API.
     * @return NetworkStack, NetworkStack type.
