@@ -4,7 +4,7 @@
 #ifndef M2M_CONNECTION_HANDLER_IMPL_H__
 #define M2M_CONNECTION_HANDLER_IMPL_H__
 
-#include "mbed-net-sockets/UDPSocket.h"
+#include "mbed-net-sockets/TCPStream.h"
 #include "lwm2m-client/m2mconfig.h"
 #include "lwm2m-client/m2minterface.h"
 #include "nsdl-c/sn_nsdl.h"
