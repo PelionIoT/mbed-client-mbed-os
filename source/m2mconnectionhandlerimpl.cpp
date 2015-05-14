@@ -173,7 +173,7 @@ void M2MConnectionHandlerImpl::dns_handler(socket_error_t error)
         _socket_address->_stack = get_network_stack(event->i.d.addr.type);
         _socket_address->_port = _server_port;
 
-        socket_error_t err = _socket->connect(&_socket_address, _socket_address->port, handler_t(this, &M2MConnectionHandlerImpl::connect_handler));
+        socket_error_t err = _socket->connect(&_socket_address, _socket_address->_port, handler_t(this, &M2MConnectionHandlerImpl::connect_handler));
         if (err != SOCKET_ERROR_NONE) {
             _observer.socket_error(2);
         }                
