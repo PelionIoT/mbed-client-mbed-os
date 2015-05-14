@@ -90,7 +90,7 @@ private:
     /**
     * @brief Callback handler for socket connect
     */
-    void M2MConnectionHandlerImpl::connect_handler(socket_error_t error);
+    void connect_handler(socket_error_t error);
 
     /**
     * @brief Helper function to return NetworkStack for the stack type
