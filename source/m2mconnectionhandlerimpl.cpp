@@ -175,7 +175,7 @@ void M2MConnectionHandlerImpl::dns_handler(socket_error_t error)
 
         err = _stream.connect(&_socket_address, _socket_address->port, handler_t(this, &M2MConnectionHandlerImpl::connect_handler));
         if (err != SOCKET_ERROR_NONE) {
-            _error = true;
+            _observer.socket_error(2);
         }                
     } else {
         //TODO: Socket error in dns resolving,
