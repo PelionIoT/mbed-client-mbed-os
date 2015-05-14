@@ -9,7 +9,6 @@ M2MConnectionHandlerImpl::M2MConnectionHandlerImpl(M2MConnectionObserver &observ
                                                    M2MInterface::NetworkStack stack)
 :_observer(observer),
  _socket_stack(SOCKET_STACK_UNINIT),
- _resolved_Address(new SocketAddr()),
  _resolved(true)
 {
     _socket_address = (M2MConnectionObserver::SocketAddress *) malloc(sizeof(M2MConnectionObserver::SocketAddress));
@@ -52,10 +51,10 @@ M2MConnectionHandlerImpl::M2MConnectionHandlerImpl(M2MConnectionObserver &observ
 
 M2MConnectionHandlerImpl::~M2MConnectionHandlerImpl()
 {
-    if(_resolved_Address) {
-        delete _resolved_Address;
-        _resolved_Address = NULL;
-    }
+    // if(_resolved_Address) {
+    //     delete _resolved_Address;
+    //     _resolved_Address = NULL;
+    // }
     if(_socket) {
         delete _socket;
         _socket = NULL;
@@ -166,7 +165,7 @@ void M2MConnectionHandlerImpl::dns_handler(socket_error_t error)
         socket_event_t *event = _socket->getEvent();
         memset(_socket_address, 0, sizeof(M2MConnectionObserver::SocketAddress));
 
-        _resolved_Address->setAddr(&event->i.d.addr);
+        _resolved_Address.setAddr(&event->i.d.addr);
         _socket_address->_address = event->i.d.addr.storage;
         //TODO: Current support only for IPv4, add IPv6 support
         _socket_address->_length = 4;

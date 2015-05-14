@@ -114,7 +114,7 @@ private:
     socket_stack_t                              _socket_stack;
     String                                      _server_address;
     char                                        _receive_buffer[1024];
-    SocketAddr                                  *_resolved_Address;
+    SocketAddr                                  _resolved_Address;
     M2MConnectionObserver::SocketAddress        *_socket_address;
     uint8_t                                      _received_address[4];
     M2MConnectionObserver::ServerType           _server_type;
