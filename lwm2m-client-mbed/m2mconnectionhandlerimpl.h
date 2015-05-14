@@ -104,7 +104,8 @@ private:
 private:
 
     M2MConnectionObserver                       &_observer;
-    UDPSocket                                   *_socket;            //owned
+    // UDPSocket                                   *_socket;            //owned
+    mbed::TCPStream                             *_socket;
     socket_stack_t                              _socket_stack;
     String                                      _server_address;
     char                                        _receive_buffer[1024];
