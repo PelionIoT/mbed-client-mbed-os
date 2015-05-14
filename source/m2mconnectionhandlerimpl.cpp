@@ -41,7 +41,7 @@ M2MConnectionHandlerImpl::M2MConnectionHandlerImpl(M2MConnectionObserver &observ
 
     memset(_receive_buffer,0,sizeof(_receive_buffer));
 
-    _socket = new mbed::TCPStream(_socket_stack);
+    _socket = new TCPStream(_socket_stack);
 
     //TODO: select socket_address_family based on Network stack
     socket_address_family_t socket_family = SOCKET_AF_INET4;
