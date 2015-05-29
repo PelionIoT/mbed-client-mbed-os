@@ -19,10 +19,8 @@ class M2MTimerImpl
 {
 public:
 
-    // Prevents the use of assignment operator
     M2MTimerImpl& operator=(const M2MTimerImpl& other);
 
-    // Prevents the use of copy constructor
     M2MTimerImpl(const M2MTimerImpl& other);
 
     /**
