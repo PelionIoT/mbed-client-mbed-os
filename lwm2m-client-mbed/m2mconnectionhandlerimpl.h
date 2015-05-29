@@ -99,7 +99,7 @@ private:
     * @param socket_event, Socket event generated from socket callbacks.
     * @return true if success else false if some error occured.
     */
-    bool event_result(socket_event_t *socket_event);
+//    bool event_result(socket_event_t *socket_event);
 
 private:
 
@@ -115,8 +115,7 @@ private:
     uint16_t                                    _server_port;
     bool                                        _resolved;
 
-friend class Test_M2MConnectionHandler;
-
+friend class Test_M2MConnectionHandlerImpl_mbed;
 };
 
 #endif //M2M_CONNECTION_HANDLER_IMPL_H__

@@ -68,51 +68,47 @@ M2MConnectionHandlerImpl::~M2MConnectionHandlerImpl()
 bool M2MConnectionHandlerImpl::bind_connection(const uint16_t listen_port)
 {
     //TODO: Use bind in mbed Socket
+    socket_error_t err;
     if(_socket) {
-        _socket->bind("0.0.0.0", listen_port);
+        err = _socket->bind("0.0.0.0", listen_port);
     }
-    return true;
+    return err == SOCKET_ERROR_NONE;
 }
 
 bool M2MConnectionHandlerImpl::resolve_server_address(const String& server_address,
                                                       const uint16_t server_port,
                                                       M2MConnectionObserver::ServerType server_type)
 {
-    bool success = true;
+    socket_error_t err;
     if(_resolved) {
         _resolved = false;
         _server_address = server_address;
         _server_port = server_port;
         _server_type = server_type;
 
-        socket_error_t error = _socket->resolve(_server_address.c_str(),
+        err = _socket->resolve(_server_address.c_str(),
                                                 handler_t(this, &M2MConnectionHandlerImpl::dns_handler));
-        if(SOCKET_ERROR_NONE != error) {
-            success = false;
-        }
     }
-    return success;
+    return SOCKET_ERROR_NONE == err;
 }
 
 bool M2MConnectionHandlerImpl::listen_for_data()
 {
     // Boolean return required for other platforms,
     // not needed in mbed Socket.
-    bool success = true;
     _socket->setOnReadable(handler_t(this, &M2MConnectionHandlerImpl::receive_handler));
-    return success;
+    return true;
 }
 
 bool M2MConnectionHandlerImpl::send_data(uint8_t *data,
                                      uint16_t data_len,
                                      sn_nsdl_addr_s *address)
 {
-    bool success = true;
-    socket_error_t error = _socket->send_to(data, data_len,_resolved_Address,address->port);
-    if(error != SOCKET_ERROR_NONE) {
-        success =false;
+    if( address == NULL ){
+        return false;
     }
-    return success;
+    socket_error_t error = _socket->send_to(data, data_len,_resolved_Address,address->port);    
+    return SOCKET_ERROR_NONE == error;
 }
 
 void M2MConnectionHandlerImpl::send_handler(socket_error_t error)
@@ -160,7 +156,7 @@ void M2MConnectionHandlerImpl::dns_handler(socket_error_t error)
 {
     _resolved = true;
     if(SOCKET_ERROR_NONE == error) {
-        socket_event_t *event = _socket->getEvent();
+        socket_event_t *event = _socket->getEvent();        
         memset(_socket_address,0,sizeof(M2MConnectionObserver::SocketAddress));
 
         _resolved_Address->setAddr(&event->i.d.addr);
@@ -220,15 +216,15 @@ M2MInterface::NetworkStack M2MConnectionHandlerImpl::get_network_stack(socket_st
     return network_stack;
 }
 
-bool M2MConnectionHandlerImpl::event_result(socket_event_t *socket_event)
-{
-    bool success = true;
-    if(socket_event) {
-        if(SOCKET_EVENT_ERROR == socket_event->event      ||
-           SOCKET_EVENT_RX_ERROR == socket_event->event   ||
-           SOCKET_EVENT_TX_ERROR == socket_event->event) {
-            success = false;
-        }
-    }
-    return success;
-}
+//bool M2MConnectionHandlerImpl::event_result(socket_event_t *socket_event)
+//{
+//    bool success = true;
+//    if(socket_event) {
+//        if(SOCKET_EVENT_ERROR == socket_event->event      ||
+//           SOCKET_EVENT_RX_ERROR == socket_event->event   ||
+//           SOCKET_EVENT_TX_ERROR == socket_event->event) {
+//            success = false;
+//        }
+//    }
+//    return success;
+//}

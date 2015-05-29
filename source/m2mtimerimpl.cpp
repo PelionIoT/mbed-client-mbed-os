@@ -13,11 +13,10 @@ M2MTimerImpl& M2MTimerImpl::operator=(const M2MTimerImpl& other)
     return *this;
 }
 
-// Prevents the use of copy constructor
 M2MTimerImpl::M2MTimerImpl(const M2MTimerImpl& other)
 :_observer(other._observer)
 {
-    *this = other;
+    this->operator=(other);
 }
 
 M2MTimerImpl::M2MTimerImpl(M2MTimerObserver& observer)
