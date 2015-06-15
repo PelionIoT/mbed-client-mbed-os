@@ -65,6 +65,11 @@ public:
     */
     bool listen_for_data();
 
+    /**
+    * @brief Closes the open connection
+    */
+    void close_connection();
+
 private:
 
     /**
@@ -89,17 +94,9 @@ private:
 
     /**
     * @brief Helper function to return NetworkStack for the stack type
-    * @param stack_type, Internal Stack type for Socket API.
     * @return NetworkStack, NetworkStack type.
     */
-    M2MInterface::NetworkStack get_network_stack(socket_stack_t stack_type);
-
-    /**
-    * @brief Returns result of the event generated from socket callbacks.
-    * @param socket_event, Socket event generated from socket callbacks.
-    * @return true if success else false if some error occured.
-    */
-//    bool event_result(socket_event_t *socket_event);
+    M2MInterface::NetworkStack get_network_stack();
 
 private:
 
@@ -110,10 +107,11 @@ private:
     char                                        _receive_buffer[1024];
     SocketAddr                                  *_resolved_Address;
     M2MConnectionObserver::SocketAddress        *_socket_address;
-    uint8_t                                      _received_address[4];
+    uint8_t                                      _received_address[16];
     M2MConnectionObserver::ServerType           _server_type;
     uint16_t                                    _server_port;
     bool                                        _resolved;
+    M2MInterface::NetworkStack                  _network_stack;
 
 friend class Test_M2MConnectionHandlerImpl_mbed;
 };

@@ -10,13 +10,16 @@ M2MConnectionHandlerImpl::M2MConnectionHandlerImpl(M2MConnectionObserver &observ
 :_observer(observer),
  _socket_stack(SOCKET_STACK_UNINIT),
  _resolved_Address(new SocketAddr()),
- _resolved(true)
+ _resolved(true),
+ _network_stack(stack)
 {
     _socket_address = (M2MConnectionObserver::SocketAddress *)malloc(sizeof(M2MConnectionObserver::SocketAddress));
     memset(_socket_address, 0, sizeof(M2MConnectionObserver::SocketAddress));
     _socket_address->_address = _received_address;
 
-    switch(stack) {
+    socket_address_family_t socket_family = SOCKET_AF_INET4;
+
+    switch(_network_stack) {
         case M2MInterface::Uninitialized:
             _socket_stack = SOCKET_STACK_UNINIT;
             break;
@@ -25,12 +28,14 @@ M2MConnectionHandlerImpl::M2MConnectionHandlerImpl(M2MConnectionObserver &observ
             break;
         case M2MInterface::LwIP_IPv6:
             _socket_stack = SOCKET_STACK_LWIP_IPV6;
+            socket_family = SOCKET_AF_INET6;
             break;
         case M2MInterface::Reserved:
             _socket_stack = SOCKET_STACK_RESERVED;
             break;
         case M2MInterface::Nanostack_IPv6:
             _socket_stack = SOCKET_STACK_NANOSTACK_IPV6;
+            socket_family = SOCKET_AF_INET6;
             break;
         case M2MInterface::Unknown:
             _socket_stack = SOCKET_STACK_MAX;
@@ -42,9 +47,7 @@ M2MConnectionHandlerImpl::M2MConnectionHandlerImpl(M2MConnectionObserver &observ
     memset(_receive_buffer,0,sizeof(_receive_buffer));
 
     _socket = new UDPSocket(_socket_stack);
-
-    //TODO: select socket_address_family based on Network stack
-    socket_address_family_t socket_family = SOCKET_AF_INET4;
+    //TODO: select socket_address_family based on Network stack    
     _socket->open(socket_family);
     _socket->setOnSent(handler_t(this, &M2MConnectionHandlerImpl::send_handler));
     _socket->setOnError(handler_t(this, &M2MConnectionHandlerImpl::error_handler));
@@ -70,7 +73,11 @@ bool M2MConnectionHandlerImpl::bind_connection(const uint16_t listen_port)
     //TODO: Use bind in mbed Socket
     socket_error_t err;
     if(_socket) {
-        err = _socket->bind("0.0.0.0", listen_port);
+        if(_network_stack == M2MInterface::LwIP_IPv4) {
+            err = _socket->bind("0.0.0.0", listen_port);
+        } else if(_network_stack == M2MInterface::Nanostack_IPv6) {
+            err = _socket->bind("0:0:0:0:0:0:0:0", listen_port);
+        }
     }
     return err == SOCKET_ERROR_NONE;
 }
@@ -111,6 +118,11 @@ bool M2MConnectionHandlerImpl::send_data(uint8_t *data,
     return SOCKET_ERROR_NONE == error;
 }
 
+void M2MConnectionHandlerImpl::close_connection()
+{
+    //Not needed now
+}
+
 void M2MConnectionHandlerImpl::send_handler(socket_error_t error)
 {
     if(SOCKET_ERROR_NONE == error) {
@@ -132,16 +144,17 @@ void M2MConnectionHandlerImpl::receive_handler(socket_error_t error)
     _socket->recv_from(_receive_buffer, &receive_length,&remote_address,&remote_port);
     if (SOCKET_ERROR_NONE == error) {
 
-        //Hold the network_stack temporarily
-        M2MInterface::NetworkStack network_stack = _socket_address->_stack;
-
         memset(_socket_address,0,sizeof(M2MConnectionObserver::SocketAddress));
 
         _socket_address->_address =remote_address.getImpl();
         //TODO: Current support only for IPv4, add IPv6 support
-        _socket_address->_length = 4;
+        if(_network_stack == M2MInterface::LwIP_IPv4) {
+            _socket_address->_length = 4;
+        } else if(_network_stack == M2MInterface::Nanostack_IPv6) {
+            _socket_address->_length = 16;
+        }
         _socket_address->_port = remote_port;
-        _socket_address->_stack = network_stack;
+        _socket_address->_stack = _network_stack;
 
         // Send data for processing.
         _observer.data_available((uint8_t*)_receive_buffer,
@@ -162,8 +175,12 @@ void M2MConnectionHandlerImpl::dns_handler(socket_error_t error)
         _resolved_Address->setAddr(&event->i.d.addr);
         _socket_address->_address =event->i.d.addr.storage;
         //TODO: Current support only for IPv4, add IPv6 support
-        _socket_address->_length = 4;
-        _socket_address->_stack = get_network_stack(event->i.d.addr.type);
+        if(_network_stack == M2MInterface::LwIP_IPv4) {
+            _socket_address->_length = 4;
+        } else if(_network_stack == M2MInterface::Nanostack_IPv6) {
+            _socket_address->_length = 16;
+        }
+        _socket_address->_stack = get_network_stack();
         _socket_address->_port = _server_port;
 
         _observer.address_ready(*_socket_address,
@@ -185,46 +202,7 @@ void M2MConnectionHandlerImpl::error_handler(socket_error_t error)
     }
 }
 
-M2MInterface::NetworkStack M2MConnectionHandlerImpl::get_network_stack(socket_stack_t stack_type)
+M2MInterface::NetworkStack M2MConnectionHandlerImpl::get_network_stack()
 {
-    M2MInterface::NetworkStack network_stack = M2MInterface::Uninitialized;
-    switch(stack_type) {
-        case SOCKET_STACK_UNINIT:
-            network_stack = M2MInterface::Uninitialized;
-            break;
-        case SOCKET_STACK_LWIP_IPV4:
-            network_stack = M2MInterface::LwIP_IPv4;
-            break;
-        case SOCKET_STACK_LWIP_IPV6:
-            network_stack = M2MInterface::LwIP_IPv6;
-            break;
-        case SOCKET_STACK_RESERVED:
-            network_stack = M2MInterface::Reserved;
-            break;
-        case SOCKET_STACK_NANOSTACK_IPV6:
-            network_stack = M2MInterface::Nanostack_IPv6;
-            break;
-        case SOCKET_STACK_PICOTCP:
-            network_stack = M2MInterface::Nanostack_IPv6;
-            break;
-        case SOCKET_STACK_MAX:
-            network_stack = M2MInterface::Unknown;
-            break;
-        default:
-            break;
-    }
-    return network_stack;
+    return _network_stack;
 }
-
-//bool M2MConnectionHandlerImpl::event_result(socket_event_t *socket_event)
-//{
-//    bool success = true;
-//    if(socket_event) {
-//        if(SOCKET_EVENT_ERROR == socket_event->event      ||
-//           SOCKET_EVENT_RX_ERROR == socket_event->event   ||
-//           SOCKET_EVENT_TX_ERROR == socket_event->event) {
-//            success = false;
-//        }
-//    }
-//    return success;
-//}
