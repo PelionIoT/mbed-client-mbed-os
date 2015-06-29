@@ -146,7 +146,7 @@ void M2MConnectionHandlerImpl::receive_handler(socket_error_t error)
 
         memset(_socket_address,0,sizeof(M2MConnectionObserver::SocketAddress));
 
-        _socket_address->_address =remote_address.getImpl();
+        _socket_address->_address =remote_address.getAddr()->ipv6be;
         //TODO: Current support only for IPv4, add IPv6 support
         if(_network_stack == M2MInterface::LwIP_IPv4) {
             _socket_address->_length = 4;
@@ -173,7 +173,7 @@ void M2MConnectionHandlerImpl::dns_handler(socket_error_t error)
         memset(_socket_address,0,sizeof(M2MConnectionObserver::SocketAddress));
 
         _resolved_Address->setAddr(&event->i.d.addr);
-        _socket_address->_address =event->i.d.addr.storage;
+        _socket_address->_address =event->i.d.addr.ipv6be;
         //TODO: Current support only for IPv4, add IPv6 support
         if(_network_stack == M2MInterface::LwIP_IPv4) {
             _socket_address->_length = 4;
