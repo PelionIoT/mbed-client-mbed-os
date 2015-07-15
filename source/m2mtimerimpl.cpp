@@ -1,57 +1,46 @@
 /*
  * Copyright (c) 2015 ARM. All rights reserved.
  */
-#include "lwm2m-client-mbed/m2mtimerimpl.h"
+#include "lwm2m-client/m2mtimer.h"
 #include "lwm2m-client/m2mtimerobserver.h"
+#include "lwm2m-client-mbed/m2mtimerpimpl.h"
 
-M2MTimerImpl& M2MTimerImpl::operator=(const M2MTimerImpl& other)
+
+M2MTimer::M2MTimer(M2MTimerObserver& observer)
+: _observer(observer)
 {
-    if( this != &other){
-        _single_shot= other._single_shot;
-        _interval = other._interval;
-    }
-    return *this;
+    _private_impl = new M2MTimerPimpl(observer);
 }
 
-M2MTimerImpl::M2MTimerImpl(const M2MTimerImpl& other)
-:_observer(other._observer)
+M2MTimer::~M2MTimer()
 {
-    this->operator=(other);
+    delete _private_impl;
+    _private_impl = NULL;
 }
 
-M2MTimerImpl::M2MTimerImpl(M2MTimerObserver& observer)
-: _observer(observer),
-  _single_shot(true),
-  _interval(0)
+void M2MTimer::start_timer( uint64_t interval,
+                            M2MTimerObserver::Type type,
+                            bool single_shot)
 {
+    _private_impl->start_timer(interval,
+                               type,
+                               single_shot);
 }
 
-M2MTimerImpl::~M2MTimerImpl()
-{
+void M2MTimer::start_dtls_timer(uint64_t intermediate_interval, uint64_t total_interval, M2MTimerObserver::Type type){
+    _private_impl->start_dtls_timer(intermediate_interval, total_interval, type);
 }
 
-void M2MTimerImpl::start_timer( uint64_t interval,
-                                bool single_shot)
+void M2MTimer::stop_timer()
 {
-    _single_shot = single_shot;
-    _interval =  interval ;
-    _ticker.detach();
-    _ticker.attach_us(this,
-                      &M2MTimerImpl::timer_expired,
-                      _interval * 1000);
+    _private_impl->stop_timer();
 }
 
-void M2MTimerImpl::stop_timer()
-{
-    _interval = 0;
-    _single_shot = false;
-    _ticker.detach();
+bool M2MTimer::is_intermediate_interval_passed(){
+    return _private_impl->is_intermediate_interval_passed();
 }
 
-void M2MTimerImpl::timer_expired()
-{
-    _observer.timer_expired();
-    if(!_single_shot) {
-        start_timer(_interval,true);
-    }
+bool M2MTimer::is_total_interval_passed(){
+    return _private_impl->is_total_interval_passed();
 }
+
