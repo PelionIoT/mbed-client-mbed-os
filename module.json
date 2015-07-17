@@ -1,6 +1,6 @@
 {
   "name": "lwm2m-client-mbed",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "mbed specific component for lwm2m-client",
   "private": true,
   "keywords": [],
