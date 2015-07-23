@@ -61,8 +61,6 @@ void M2MTimerPimpl::timer_expired()
     _observer.timer_expired(_type);
     if(!_single_shot) {
         start_timer(_interval, _type, true);
-    }else{
-        _ticker.detach();
     }
 }
 
