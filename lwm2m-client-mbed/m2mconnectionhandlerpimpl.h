@@ -11,8 +11,7 @@
 #include "sn_nsdl.h"
 #include "mbed-net-sockets/UDPSocket.h"
 
-using namespace mbed;
-
+using namespace mbed::Sockets::v0;
 
 class M2MConnectionSecurity;
 class M2MConnectionHandler;
@@ -100,24 +99,27 @@ private:
     /**
     * @brief Callback handler for sending data over socket.
     */
-    void send_handler(socket_error_t error);
+    void send_handler(Socket *socket, uint16_t data_sent);
 
     /**
     * @brief Callback handler for receiving data over socket.
     */
-    void receive_handler(socket_error_t error);
+    void receive_handler(Socket *socket);
 
     /**
     * @brief Callback handler for dns resolving of address
     */
-    void dns_handler(socket_error_t error);
+    void dns_handler(Socket *socket, struct socket_addr sa, const char *domain);
 
     /**
     * @brief Callback handler for dns resolving of address
     */
-    void error_handler(socket_error_t error);
+    void error_handler(Socket *socket, socket_error_t error);
 
-    void receive_handshake_handler(socket_error_t error);
+    /**
+    * @brief Callback handler for receiving data for secured connection.
+    */
+    void receive_handshake_handler(Socket *socket);
 
 private:
     M2MConnectionHandler                        *_base;
@@ -134,10 +136,9 @@ private:
     M2MConnectionObserver::ServerType           _server_type;
     uint16_t                                    _server_port;
     bool                                        _resolved;
-    UDPSocket                                   *_socket;            //owned
     socket_stack_t                              _socket_stack;
-
     bool                                        _is_handshaking;
+    UDPSocket                                   *_socket;            //owned
 
 friend class Test_M2MConnectionHandlerPimpl;
 friend class Test_M2MConnectionHandlerPimpl_mbed;

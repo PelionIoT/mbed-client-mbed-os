@@ -13,8 +13,8 @@
     }
   ],
   "dependencies": {
-    "mbed-core": "~0.1.1",
-    "mbed-net-sockets": "~0.1.2"
+    "mbed-core": "~0.4.0",
+    "mbed-net-sockets": "~0.2.0"
   },
   "targetDependencies": {}
 }
