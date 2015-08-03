@@ -6,12 +6,7 @@
   "keywords": [],
   "author": "Yogesh Pande <yogesh.pande@arm.com>",
   "homepage": "https://github.com/ARMmbed/lwm2m-client-mbed",
-  "licenses": [
-    {
-      "url": "https://spdx.org/licenses/Apache-2.0",
-      "type": "Apache-2.0"
-    }
-  ],
+  "license": "Apache-2.0",
   "dependencies": {
     "mbed-core": "~0.4.0",
     "mbed-net-sockets": "~0.2.0"
