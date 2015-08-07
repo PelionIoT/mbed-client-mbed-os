@@ -1,11 +1,11 @@
 {
   "name": "mbed-client-mbed-os",
-  "version": "0.1.3",
-  "description": "mbed specific component for lwm2m-client",
+  "version": "0.1.4",
+  "description": "mbed specific component for mbed-client",
   "private": true,
   "keywords": [],
   "author": "Yogesh Pande <yogesh.pande@arm.com>",
-  "homepage": "https://github.com/ARMmbed/lwm2m-client-mbed",
+  "homepage": "https://github.com/ARMmbed/mbed-client-mbed-os",
   "license": "Apache-2.0",
   "dependencies": {
     "mbed-drivers": "~0.4.0",

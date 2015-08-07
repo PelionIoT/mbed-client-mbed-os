@@ -16,10 +16,10 @@
 #ifndef M2M_CONNECTION_HANDLER_PIMPL_H__
 #define M2M_CONNECTION_HANDLER_PIMPL_H__
 
-#include "lwm2m-client/m2mconfig.h"
-#include "lwm2m-client/m2minterface.h"
-#include "lwm2m-client/m2mconnectionobserver.h"
-#include "lwm2m-client/m2mconnectionsecurity.h"
+#include "mbed-client/m2mconfig.h"
+#include "mbed-client/m2minterface.h"
+#include "mbed-client/m2mconnectionobserver.h"
+#include "mbed-client/m2mconnectionsecurity.h"
 #include "nsdl-c/sn_nsdl.h"
 #include "mbed-net-sockets/UDPSocket.h"
 

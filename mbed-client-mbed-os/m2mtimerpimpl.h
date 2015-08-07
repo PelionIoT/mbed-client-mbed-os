@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <Ticker.h>
 
-#include "lwm2m-client/m2mtimerobserver.h"
+#include "mbed-client/m2mtimerobserver.h"
 
 class M2MTimerPimpl {
 private:
