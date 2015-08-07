@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "lwm2m-client-mbed/m2mconnectionhandlerpimpl.h"
-#include "lwm2m-client/m2mconnectionobserver.h"
-#include "lwm2m-client/m2mconstants.h"
-#include "lwm2m-client/m2msecurity.h"
-#include "lwm2m-client/m2mconnectionhandler.h"
+#include "mbed-client-mbed-os/m2mconnectionhandlerpimpl.h"
+#include "mbed-client/m2mconnectionobserver.h"
+#include "mbed-client/m2mconstants.h"
+#include "mbed-client/m2msecurity.h"
+#include "mbed-client/m2mconnectionhandler.h"
 
 using namespace mbed::Sockets::v0;
 

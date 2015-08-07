@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "lwm2m-client/m2mtimer.h"
-#include "lwm2m-client/m2mtimerobserver.h"
-#include "lwm2m-client-mbed/m2mtimerpimpl.h"
+#include "mbed-client/m2mtimer.h"
+#include "mbed-client/m2mtimerobserver.h"
+#include "mbed-client-mbed-os/m2mtimerpimpl.h"
 
 
 M2MTimer::M2MTimer(M2MTimerObserver& observer)
