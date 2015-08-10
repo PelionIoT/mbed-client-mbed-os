@@ -1,6 +1,6 @@
 {
   "name": "mbed-client-mbed-os",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "mbed specific component for mbed-client",
   "private": true,
   "keywords": [],
@@ -8,7 +8,7 @@
   "homepage": "https://github.com/ARMmbed/mbed-client-mbed-os",
   "license": "Apache-2.0",
   "dependencies": {
-    "mbed-drivers": "~0.4.0",
+    "mbed-drivers": "~0.6.0",
     "sockets": "~0.2.0"
   },
   "targetDependencies": {}
