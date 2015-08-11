@@ -1,6 +1,6 @@
 {
   "name": "mbed-client-mbed-os",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "mbed specific component for mbed-client",
   "private": true,
   "keywords": [],
