@@ -67,6 +67,11 @@ private:
     void timer_expired();
 
     /**
+    * Callback function for long timers.
+    */
+    void still_left_timer_expired();
+
+    /**
     * Callback function for timer completion.
     */
     void dtls_timer_expired();
@@ -92,6 +97,7 @@ private:
     uint64_t            _intermediate_interval;
     uint64_t            _total_interval;
     uint8_t             _status;
+    uint64_t            _still_left;
 
     mbed::Ticker        _ticker;
 

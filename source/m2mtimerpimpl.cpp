@@ -23,7 +23,8 @@ M2MTimerPimpl::M2MTimerPimpl(M2MTimerObserver& observer)
   _type(M2MTimerObserver::Notdefined),
   _intermediate_interval(0),
   _total_interval(0),
-  _status(0)
+  _status(0),
+  _still_left(0)
 {
 
 }
@@ -41,12 +42,21 @@ void M2MTimerPimpl::start_timer( uint64_t interval,
     _status = 0;
     _single_shot = single_shot;
     _interval = interval;
+    _still_left = 0;
     _type = type;
-
     _ticker.detach();
+
+    if(_interval > (2000 * 1000)) {
+        _still_left = _interval - (2000 * 1000);
+        _ticker.attach_us(this,
+                      &M2MTimerPimpl::still_left_timer_expired,
+                      2000 * 1000 * 1000);
+    } else {
     _ticker.attach_us(this,
-                      &M2MTimerPimpl::timer_expired,
-                      _interval * 1000);
+                  &M2MTimerPimpl::timer_expired,
+                  _interval * 1000);
+    }
+
 }
 
 void M2MTimerPimpl::start_dtls_timer(uint64_t intermediate_interval, uint64_t total_interval, M2MTimerObserver::Type type)
@@ -64,6 +74,7 @@ void M2MTimerPimpl::start_dtls_timer(uint64_t intermediate_interval, uint64_t to
 void M2MTimerPimpl::stop_timer()
 {
     _interval = 0;
+    _still_left = 0;
     _single_shot = false;
     _ticker.detach();
 }
@@ -73,6 +84,29 @@ void M2MTimerPimpl::timer_expired()
     _observer.timer_expired(_type);
     if(!_single_shot) {
         start_timer(_interval, _type, true);
+    }
+}
+
+void M2MTimerPimpl::still_left_timer_expired()
+{
+    _ticker.detach();
+    if(_still_left > 0) {
+        if(_still_left > (2000 * 1000)) {
+            _still_left = _still_left - (2000 * 1000);
+            _ticker.attach_us(this,
+                          &M2MTimerPimpl::still_left_timer_expired,
+                          2000 * 1000 * 1000);
+        } else {
+            _ticker.attach_us(this,
+                          &M2MTimerPimpl::still_left_timer_expired,
+                          _still_left * 1000);
+            _still_left = 0;
+        }
+    } else {
+        _observer.timer_expired(_type);
+        if(!_single_shot) {
+            start_timer(_interval, _type, _single_shot);
+        }
     }
 }
 
