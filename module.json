@@ -2,7 +2,6 @@
   "name": "mbed-client-mbed-os",
   "version": "0.1.10",
   "description": "mbed specific component for mbed-client",
-  "private": true,
   "keywords": [],
   "author": "Yogesh Pande <yogesh.pande@arm.com>",
   "homepage": "https://github.com/ARMmbed/mbed-client-mbed-os",
