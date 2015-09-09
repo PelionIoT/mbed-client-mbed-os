@@ -19,11 +19,12 @@
 #include "mbed-client/m2mconstants.h"
 
 M2MConnectionHandler::M2MConnectionHandler(M2MConnectionObserver &observer,
-                                                   M2MConnectionSecurity* sec,
-                                                   M2MInterface::NetworkStack stack)
+                                           M2MConnectionSecurity* sec,
+                                           M2MInterface::BindingMode mode,
+                                           M2MInterface::NetworkStack stack)
 :_observer(observer)
 {
-    _private_impl = new M2MConnectionHandlerPimpl(this, observer, sec, stack);
+    _private_impl = new M2MConnectionHandlerPimpl(this, observer, sec, mode, stack);
 }
 
 M2MConnectionHandler::~M2MConnectionHandler()
