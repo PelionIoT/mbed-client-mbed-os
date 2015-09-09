@@ -22,15 +22,17 @@
 using namespace mbed::Sockets::v0;
 
 M2MConnectionHandlerPimpl::M2MConnectionHandlerPimpl(M2MConnectionHandler* base, M2MConnectionObserver &observer,
-                                                   M2MConnectionSecurity* sec,
-                                                   M2MInterface::NetworkStack stack)
+                                                     M2MConnectionSecurity* sec,
+                                                     M2MInterface::BindingMode mode,
+                                                     M2MInterface::NetworkStack stack)
 :_base(base),
  _observer(observer),
  _security_impl(sec),
-  _use_secure_connection(false),
+ _use_secure_connection(false),
+ _binding_mode(mode),
  _network_stack(stack),
-  _resolved_Address(new SocketAddr()),
-  _resolved(true),
+ _resolved_Address(new SocketAddr()),
+ _resolved(true),
  _socket_stack(SOCKET_STACK_UNINIT),
  _is_handshaking(false)
 {
