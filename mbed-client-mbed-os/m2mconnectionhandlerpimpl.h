@@ -41,8 +41,9 @@ public:
     * @brief Constructor
     */
     M2MConnectionHandlerPimpl(M2MConnectionHandler* base, M2MConnectionObserver &observer,
-                             M2MConnectionSecurity* sec,
-                             M2MInterface::NetworkStack stack);
+                              M2MConnectionSecurity* sec,
+                              M2MInterface::BindingMode mode,
+                              M2MInterface::NetworkStack stack);
 
     /**
     * @brief Destructor
@@ -141,6 +142,7 @@ private:
     bool                                        _use_secure_connection;
     String                                      _server_address;
     unsigned char                               _receive_buffer[1024];
+    M2MInterface::BindingMode                   _binding_mode;
     M2MInterface::NetworkStack                  _network_stack;
     uint8_t                                     _received_address[16];
     M2MConnectionObserver::SocketAddress        *_socket_address;
