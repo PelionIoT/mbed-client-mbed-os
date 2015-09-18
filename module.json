@@ -1,13 +1,13 @@
 {
   "name": "mbed-client-mbed-os",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "mbed specific component for mbed-client",
   "keywords": [],
   "author": "Yogesh Pande <yogesh.pande@arm.com>",
   "homepage": "https://github.com/ARMmbed/mbed-client-mbed-os",
   "license": "Apache-2.0",
   "dependencies": {
-    "mbed-drivers": "~0.6.0",
+    "mbed-drivers": "~0.8.0",
     "sockets": "~0.3.0"
   },
   "targetDependencies": {}
