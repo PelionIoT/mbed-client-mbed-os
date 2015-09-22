@@ -43,7 +43,11 @@ private:
 
         ~MbedSocket(){}
 
-        socket_error_t connect(const SocketAddr *address, const uint16_t port){return _socket.api->connect(&_socket, address->getAddr(), port);}
+        socket_error_t connect(const SocketAddr *address, const uint16_t port){
+            if( _socket.api )
+                return _socket.api->connect(&_socket, address->getAddr(), port);
+            return SOCKET_ERROR_UNKNOWN;
+        }
     };
 
 public:
