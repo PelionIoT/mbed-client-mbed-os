@@ -137,7 +137,7 @@ bool M2MConnectionHandlerPimpl::send_data(uint8_t *data,
                                      uint16_t data_len,
                                      sn_nsdl_addr_s *address)
 {
-    if( address == NULL ){
+    if( address == NULL || data == NULL){
         return false;
     }
     socket_error_t error = SOCKET_ERROR_NONE;
@@ -148,7 +148,6 @@ bool M2MConnectionHandlerPimpl::send_data(uint8_t *data,
             error = SOCKET_ERROR_UNKNOWN;
         }
     }else{
-        //error = _mbed_socket->send_to(data, data_len,_resolved_Address,address->port);
         if(_binding_mode == M2MInterface::TCP ||
            _binding_mode == M2MInterface::TCP_QUEUE){
             //We need to "shim" the length in front
@@ -189,7 +188,6 @@ void M2MConnectionHandlerPimpl::stop_listening()
 
 int M2MConnectionHandlerPimpl::sendToSocket(const unsigned char *buf, size_t len)
 {
-    //socket_error_t error = _mbed_socket->send_to(buf, len,_resolved_Address,_server_port);
     socket_error_t error = _mbed_socket->send(buf, len);
     if( SOCKET_ERROR_WOULD_BLOCK == error ){
         return M2MConnectionHandler::CONNECTION_ERROR_WANTS_WRITE;
@@ -204,7 +202,6 @@ int M2MConnectionHandlerPimpl::sendToSocket(const unsigned char *buf, size_t len
 int M2MConnectionHandlerPimpl::receiveFromSocket(unsigned char *buf, size_t len)
 {
     socket_error_t error;
-    //error = _mbed_socket->recv_from(buf, &len,&remote_address,&remote_port);
     error = _mbed_socket->recv(buf, &len);
 
     if( SOCKET_ERROR_WOULD_BLOCK == error ){
