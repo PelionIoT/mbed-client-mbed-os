@@ -24,7 +24,7 @@ M2MTimer::M2MTimer(M2MTimerObserver& observer)
     _private_impl = new M2MTimerPimpl(observer);
 }
 
-M2MTimer::~M2MTimer()
+2MTimer::~M2MTimer()
 {
     delete _private_impl;
     _private_impl = NULL;
