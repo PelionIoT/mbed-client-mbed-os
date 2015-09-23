@@ -47,8 +47,10 @@ test: $(TESTDIRS)
 	@rm -f lcov/index.xml
 	@find ./ -name '*.gcno' | xargs cp --backup=numbered -t ./coverage/
 	@find ./ -name '*.gcda' | xargs cp --backup=numbered -t ./coverage/
-	@exclude_files="${PWD}/test/"
-	@gcovr --object-directory ./coverage --exclude '/usr' --exclude $exclude_files  -x -o ./lcov/gcovr.xml
+#	@find ./coverage -name '*stub*' | xargs rm -f
+#	@find ./coverage -name '*test*' | xargs rm -f
+#	@find ./coverage -name 'main.*' | xargs rm -f
+	@gcovr --exclude '.*common.*' --exclude '.*stub.*' --exclude '.*usr.*' --exclude '.*yotta.*' --exclude '.*home.*' -x -o ./lcov/gcovr.xml
 	@lcov -d test/. -c -o $(COVERAGEFILE)
 	@lcov -q -r $(COVERAGEFILE) "/usr*" -o $(COVERAGEFILE)
 	@lcov -q -r $(COVERAGEFILE) "/test*" -o $(COVERAGEFILE)
