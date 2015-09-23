@@ -140,7 +140,7 @@ int8_t sn_nsdl_process_coap(struct nsdl_s *, uint8_t *, uint16_t , sn_nsdl_addr_
     return common_stub::int_value;
 }
 
-int8_t sn_nsdl_exec(uint32_t)
+int8_t sn_nsdl_exec(struct nsdl_s *, uint32_t)
 {
     return common_stub::int_value;
 }
@@ -232,6 +232,7 @@ void ip6tos(const void *, char *)
 //Socket
 Socket::Socket(const socket_stack_t ) : _irq(this)
 {
+    _socket.api = NULL;
 }
 
 Socket::~Socket()
@@ -242,7 +243,6 @@ socket_error_t Socket::open(const socket_address_family_t , const socket_proto_f
 {
     return common_stub::error;
 }
-
 
 bool Socket::error_check(socket_error_t )
 {
@@ -427,5 +427,10 @@ const char *inet_ntop (int, const void *__restrict,
      __THROW
 {
     return common_stub::char_value;
+}
+
+int connect (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len)
+{
+    return common_stub::int_value;
 }
 
