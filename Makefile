@@ -20,6 +20,7 @@ $(eval $(call generate_rules,$(LIB),$(SRCS)))
 clean: clean-extra
 
 $(TESTDIRS):
+	@yotta target frdm-k64f-gcc
 	@yotta install --test-dependencies own
 	@make -C $(@:build-%=%)
 

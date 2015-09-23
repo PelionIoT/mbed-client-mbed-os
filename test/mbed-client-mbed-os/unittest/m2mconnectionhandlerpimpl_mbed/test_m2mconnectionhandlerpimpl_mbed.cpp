@@ -195,7 +195,7 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handshake_handler()
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_dns_handler()
 {
-    /*common_stub::event = (socket_event_t*)malloc(sizeof(socket_event_t));
+    common_stub::event = (socket_event_t*)malloc(sizeof(socket_event_t));
     memset(common_stub::event, 0, sizeof(socket_event_t));
     handler->_network_stack = M2MInterface::LwIP_IPv4;
     common_stub::bool_value = true;
@@ -229,7 +229,7 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_dns_handler()
     handler->_security_impl = NULL;
     delete conSec;
     delete sec;
-    free(common_stub::event);*/
+    free(common_stub::event);
 }
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_error_handler()
