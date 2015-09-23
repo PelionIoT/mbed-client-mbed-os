@@ -32,8 +32,10 @@ $(CLEANTESTDIRS):
 .PHONY: test
 test: $(TESTDIRS)
 	@rm -rf ./lcov
+	@rm -rf ./coverage
 	@mkdir -p lcov
 	@mkdir -p lcov/results
+	@mkdir coverage
 	@find ./test -name '*.xml' | xargs cp -t ./lcov/results/
 	@rm -f lcov/index.xml
 	@./xsl_script.sh
@@ -41,6 +43,10 @@ test: $(TESTDIRS)
 	@xsltproc -o lcov/testresults.html lcov/junit_xsl.xslt lcov/index.xml
 	@rm -f lcov/junit_xsl.xslt
 	@rm -f lcov/index.xml
+	@find ./ -name '*.gcno' | xargs cp --backup=numbered -t ./coverage/
+	@find ./ -name '*.gcda' | xargs cp --backup=numbered -t ./coverage/
+	@exclude_files="${PWD}/test/"
+	@gcovr --object-directory ./coverage --exclude '/usr' --exclude $exclude_files  -x -o ./lcov/gcovr.xml
 	@lcov -d test/. -c -o $(COVERAGEFILE)
 	@lcov -q -r $(COVERAGEFILE) "/usr*" -o $(COVERAGEFILE)
 	@lcov -q -r $(COVERAGEFILE) "/test*" -o $(COVERAGEFILE)
