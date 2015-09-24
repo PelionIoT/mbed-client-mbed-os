@@ -47,8 +47,7 @@ test: $(TESTDIRS)
 	@rm -f lcov/index.xml
 	@find ./ -name '*.gcno' | xargs cp --backup=numbered -t ./coverage/
 	@find ./ -name '*.gcda' | xargs cp --backup=numbered -t ./coverage/
-	exclude_files="${PWD}/test/mbed-client-mbed-os/unittest/"
-	gcovr --object-directory ./coverage --exclude '/usr' --exclude $exclude_files  -x -o ./lcov/gcovr.xml
+	gcovr --object-directory ./coverage --exclude '/usr' --exclude '${PWD}/test/mbed-client-mbed-os/unittest/' --exclude '/yotta_modules/' --exclude '${PWD}/coverage/' -x -o ./lcov/gcovr.xml
 	@lcov -d test/. -c -o $(COVERAGEFILE)
 	@lcov -q -r $(COVERAGEFILE) "/usr*" -o $(COVERAGEFILE)
 	@lcov -q -r $(COVERAGEFILE) "/test*" -o $(COVERAGEFILE)
