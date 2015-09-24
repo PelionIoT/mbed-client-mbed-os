@@ -1,0 +1,25 @@
+#--- Inputs ----#
+CPPUTEST_HOME = /usr
+CPPUTEST_USE_EXTENSIONS = Y
+CPPUTEST_USE_VPATH = Y
+CPPUTEST_USE_GCOV = Y
+CPP_PLATFORM = gcc
+INCLUDE_DIRS =\
+  .\
+  ../common\
+  ../stub\
+  ../../../../source/include\
+  ../../../../source\
+  ../../../../\
+  ../../../../mbed-client-mbed-os\
+  ../../../../yotta_modules/mbed-client/mbed-client\
+  ../../../../yotta_modules/mbed-client\
+  ../../../../yotta_modules/mbed-client/source\
+  ../../../../yotta_modules/mbed-client/source/include\
+  ../../../../yotta_modules/mbed-client-c\
+  ../../../../yotta_modules/mbed-client-c/source/libNsdl\
+  ../../../../yotta_modules/mbed-client-c/source/libNsdl/src/include\
+  /usr/include\
+  $(CPPUTEST_HOME)/include\
+
+CPPUTESTFLAGS = -D__thumb2__ -w
