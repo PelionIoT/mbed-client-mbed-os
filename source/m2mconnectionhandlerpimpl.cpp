@@ -162,7 +162,7 @@ bool M2MConnectionHandlerPimpl::send_data(uint8_t *data,
             error = _mbed_socket->send(d, d_len);
             free(d);
         }else{
-            error = _mbed_socket->send(data, data_len);
+            error = _mbed_socket->send_to(data, data_len,_resolved_Address,_server_port);
         }
     }
     return SOCKET_ERROR_NONE == error;
@@ -188,7 +188,14 @@ void M2MConnectionHandlerPimpl::stop_listening()
 
 int M2MConnectionHandlerPimpl::sendToSocket(const unsigned char *buf, size_t len)
 {
-    socket_error_t error = _mbed_socket->send(buf, len);
+    socket_error_t error = SOCKET_ERROR_NONE;
+    if(_binding_mode == M2MInterface::TCP ||
+       _binding_mode == M2MInterface::TCP_QUEUE){
+        error = _mbed_socket->send(buf, len);
+    }else{
+        error = _mbed_socket->send_to(buf, len,_resolved_Address,_server_port);
+    }
+
     if( SOCKET_ERROR_WOULD_BLOCK == error ){
         return M2MConnectionHandler::CONNECTION_ERROR_WANTS_WRITE;
     }else if( SOCKET_ERROR_NONE != error ){
@@ -202,7 +209,15 @@ int M2MConnectionHandlerPimpl::sendToSocket(const unsigned char *buf, size_t len
 int M2MConnectionHandlerPimpl::receiveFromSocket(unsigned char *buf, size_t len)
 {
     socket_error_t error;
-    error = _mbed_socket->recv(buf, &len);
+    if(_binding_mode == M2MInterface::TCP ||
+       _binding_mode == M2MInterface::TCP_QUEUE){
+        error = _mbed_socket->recv(buf, &len);
+    }else{
+        SocketAddr remote_address;
+        uint16_t remote_port;
+        error = _mbed_socket->recv_from(buf, &len,&remote_address,&remote_port);
+    }
+
 
     if( SOCKET_ERROR_WOULD_BLOCK == error ){
         return M2MConnectionHandler::CONNECTION_ERROR_WANTS_READ;
@@ -251,7 +266,15 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
             return;
         }
     }else{
-        socket_error_t error = _mbed_socket->recv(_receive_buffer, &receive_length);
+        socket_error_t error = SOCKET_ERROR_NONE;
+        if(_binding_mode == M2MInterface::TCP ||
+           _binding_mode == M2MInterface::TCP_QUEUE){
+            error = _mbed_socket->recv(_receive_buffer, &receive_length);
+        }else{
+            SocketAddr remote_address;
+            uint16_t remote_port;
+            error = _mbed_socket->recv_from(_receive_buffer, &receive_length,&remote_address,&remote_port);
+        }
         if (SOCKET_ERROR_NONE == error) {
 
             memset(_socket_address,0,sizeof(M2MConnectionObserver::SocketAddress));
@@ -310,7 +333,10 @@ void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_ad
     _socket_address->_stack = _network_stack;
     _socket_address->_port = _server_port;
 
-    _mbed_socket->connect(_resolved_Address, _server_port);
+    if(_binding_mode == M2MInterface::TCP ||
+       _binding_mode == M2MInterface::TCP_QUEUE){
+        _mbed_socket->connect(_resolved_Address, _server_port);
+    }
 
     if( _security ){
         if( _security->resource_value_int(M2MSecurity::SecurityMode) == M2MSecurity::Certificate ||
