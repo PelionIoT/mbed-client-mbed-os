@@ -32,6 +32,7 @@ sn_coap_hdr_s *common_stub::coap_header;
 sn_nsdl_resource_info_s *common_stub::resource;
 pthread_t common_stub::thread;
 const char* common_stub::char_value;
+size_t common_stub::size;
 
 using namespace mbed;
 using namespace mbed::Sockets::v0;
@@ -52,6 +53,7 @@ void common_stub::clear()
     resource = NULL;
     addrinfo = NULL;
     char_value = NULL;
+    size = 0;
 }
 
 UDPSocket::UDPSocket(socket_stack_t stack) :Socket(stack)
@@ -308,8 +310,15 @@ socket_error_t Socket::close()
     return common_stub::error;
 }
 
-socket_error_t Socket::recv(void * , size_t *)
+socket_error_t Socket::recv(void *buffer, size_t * size)
 {
+    unsigned char test[4];
+    test[0] = '\0';
+    test[1] = '\0';
+    test[2] = '\0';
+    test[3] = '1';
+    memcpy(buffer, test, 4);
+    *size = common_stub::size;
     return common_stub::error;
 }
 socket_error_t Socket::recv_from(void * , size_t *, SocketAddr *, uint16_t *)

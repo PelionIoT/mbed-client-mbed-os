@@ -105,22 +105,22 @@ public:
     void stop_listening();
 
     /**
-     * @brief sendToSocket Sends directly to socket. This is used by
+     * @brief send_to_socket Sends directly to socket. This is used by
      * security classes to send after data has been encrypted.
      * @param buf Buffer to send
      * @param len Length of a buffer
      * @return Number of bytes sent or -1 if failed
      */
-    int sendToSocket(const unsigned char *buf, size_t len);
+    int send_to_socket(const unsigned char *buf, size_t len);
 
     /**
-     * @brief receiveFromSocket Receives directly from a socket. This
+     * @brief receive_from_socket Receives directly from a socket. This
      * is used by security classes to receive raw data to be decrypted.
      * @param buf Buffer to send
      * @param len Length of a buffer
      * @return Number of bytes read or -1 if failed.
      */
-    int receiveFromSocket(unsigned char *buf, size_t len);
+    int receive_from_socket(unsigned char *buf, size_t len);
 
 private:
 

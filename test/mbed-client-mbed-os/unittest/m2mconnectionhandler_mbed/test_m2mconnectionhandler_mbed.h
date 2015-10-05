@@ -39,9 +39,9 @@ public:
 
     void test_stop_listening();
 
-    void test_sendToSocket();
+    void test_send_to_socket();
 
-    void test_receiveFromSocket();
+    void test_receive_from_socket();
 
     M2MConnectionHandler* handler;
     TestObserver *observer;

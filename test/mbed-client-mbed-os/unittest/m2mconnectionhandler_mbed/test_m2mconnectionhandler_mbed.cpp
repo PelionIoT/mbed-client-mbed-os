@@ -108,15 +108,15 @@ void Test_M2MConnectionHandler_mbed::test_stop_listening()
     handler->stop_listening();
 }
 
-void Test_M2MConnectionHandler_mbed::test_sendToSocket()
+void Test_M2MConnectionHandler_mbed::test_send_to_socket()
 {
     const char buf[] = "hello";
-    handler->sendToSocket((unsigned char *)&buf, 5);
+    handler->send_to_socket((unsigned char *)&buf, 5);
 }
 
-void Test_M2MConnectionHandler_mbed::test_receiveFromSocket()
+void Test_M2MConnectionHandler_mbed::test_receive_from_socket()
 {
     unsigned char *buf = (unsigned char *)malloc(6);
-    handler->receiveFromSocket(buf, 5);
+    handler->receive_from_socket(buf, 5);
     free(buf);
 }
