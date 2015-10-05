@@ -186,7 +186,7 @@ void M2MConnectionHandlerPimpl::stop_listening()
 
 }
 
-int M2MConnectionHandlerPimpl::sendToSocket(const unsigned char *buf, size_t len)
+int M2MConnectionHandlerPimpl::send_to_socket(const unsigned char *buf, size_t len)
 {
     socket_error_t error = SOCKET_ERROR_NONE;
     if(_binding_mode == M2MInterface::TCP ||
@@ -206,7 +206,7 @@ int M2MConnectionHandlerPimpl::sendToSocket(const unsigned char *buf, size_t len
 
 }
 
-int M2MConnectionHandlerPimpl::receiveFromSocket(unsigned char *buf, size_t len)
+int M2MConnectionHandlerPimpl::receive_from_socket(unsigned char *buf, size_t len)
 {
     socket_error_t error;
     if(_binding_mode == M2MInterface::TCP ||
@@ -260,7 +260,8 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
     if( _use_secure_connection ){
         int rcv_size = _security_impl->read(_receive_buffer, receive_length);
         if(rcv_size >= 0){
-            receive_length = rcv_size;
+            _observer.data_available((uint8_t*)_receive_buffer,
+                                     rcv_size, *_socket_address);
         }else{
             _observer.socket_error(1);
             return;
@@ -288,33 +289,34 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
             }
             _socket_address->_port = _socket_address->_port;
             _socket_address->_stack = _network_stack;
-
+            // Send data for processing.
+            if(_binding_mode == M2MInterface::TCP ||
+               _binding_mode == M2MInterface::TCP_QUEUE){
+                //We need to "shim" out the length from the front
+                if( receive_length > 4 ){
+                    uint64_t len = (_receive_buffer[0] << 24 & 0xFF000000) + (_receive_buffer[1] << 16 & 0xFF0000);
+                    len += (_receive_buffer[2] << 8 & 0xFF00) + (_receive_buffer[3] & 0xFF);
+                    if(len > 0) {
+                        uint8_t* buf = (uint8_t*)malloc(len);
+                        if(buf) {
+                            memmove(buf, _receive_buffer+4, len);
+                            // Observer for TCP plain mode
+                            _observer.data_available(buf,len,*_socket_address);
+                            free(buf);
+                        }
+                    }
+                }else{
+                    _observer.socket_error(1);
+                }
+            } else { // Observer for UDP plain mode
+                _observer.data_available((uint8_t*)_receive_buffer,
+                                         receive_length, *_socket_address);
+            }
         } else {
             // Socket error in receiving
             _observer.socket_error(1);
-            return;
         }
     }
-    // Send data for processing.
-    if(_binding_mode == M2MInterface::TCP ||
-       _binding_mode == M2MInterface::TCP_QUEUE){
-        //We need to "shim" out the length from the front
-        if( receive_length > 4 ){
-            uint64_t len = (_receive_buffer[0] << 24 & 0xFF000000) + (_receive_buffer[1] << 16 & 0xFF0000);
-            len += (_receive_buffer[2] << 8 & 0xFF00) + (_receive_buffer[3] & 0xFF);
-            uint8_t* buf = (uint8_t*)malloc(len);
-            memmove(buf, _receive_buffer+4, len);
-            _observer.data_available(buf,len,*_socket_address);
-            free(buf);
-        }else{
-            _observer.socket_error(1);
-        }
-    }else{
-        _observer.data_available((uint8_t*)_receive_buffer,
-                                 receive_length, *_socket_address);
-    }
-
-
 }
 
 void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_addr sa, const char */*domain*/)

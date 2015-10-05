@@ -136,6 +136,7 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_send_handler()
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
 {
+    observer->dataAvailable = false;
     handler->_network_stack = M2MInterface::LwIP_IPv4;
     handler->receive_handler(NULL);
     CHECK(observer->dataAvailable == true);
@@ -144,6 +145,32 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
     handler->_network_stack = M2MInterface::Nanostack_IPv6;
     handler->receive_handler(NULL);
     CHECK(observer->dataAvailable == true);
+
+
+    common_stub::error = SOCKET_ERROR_NONE;
+    common_stub::size = 5;
+    handler->_binding_mode = M2MInterface::TCP;
+    observer->dataAvailable = false;
+    handler->_network_stack = M2MInterface::Nanostack_IPv6;
+    handler->receive_handler(NULL);
+    CHECK(observer->dataAvailable == true);
+
+
+    handler->_binding_mode = M2MInterface::TCP_QUEUE;
+    observer->dataAvailable = false;
+    handler->_network_stack = M2MInterface::Nanostack_IPv6;
+    handler->receive_handler(NULL);
+    CHECK(observer->dataAvailable == true);
+
+    common_stub::size = 0;
+    handler->_binding_mode = M2MInterface::TCP_QUEUE;
+    observer->dataAvailable = false;
+    handler->_network_stack = M2MInterface::Nanostack_IPv6;
+    handler->receive_handler(NULL);
+    CHECK(observer->error == true);
+
+
+    handler->_binding_mode = M2MInterface::UDP;
 
     handler->receive_handler(NULL);
     CHECK(observer->error == true);
@@ -167,10 +194,11 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
     handler->receive_handler(NULL);
     CHECK(observer->dataAvailable == true);
 
-    observer->error = false;
+    //observer->error = false;
+    observer->dataAvailable = false;
     m2mconnectionsecurityimpl_stub::int_value = 2;
     handler->receive_handler(NULL);
-    CHECK(observer->error == true);
+    CHECK(observer->dataAvailable == true);
 
     handler->_security_impl = NULL;
     delete conSec;
@@ -212,6 +240,11 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_dns_handler()
     handler->dns_handler(NULL,sa,NULL);
     CHECK(observer->error == true);
 
+    handler->_binding_mode = M2MInterface::TCP;
+    handler->dns_handler(NULL,sa,NULL);
+    CHECK(observer->error == true);
+
+
     M2MConnectionSecurity* conSec = new M2MConnectionSecurity(M2MConnectionSecurity::TLS);
     handler->_security_impl = conSec;
     handler->_use_secure_connection = true;
@@ -244,28 +277,45 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_stop_listening()
     handler->stop_listening();
 }
 
-void Test_M2MConnectionHandlerPimpl_mbed::test_sendToSocket()
+void Test_M2MConnectionHandlerPimpl_mbed::test_send_to_socket()
 {
     const char buf[] = "hello";
-    CHECK( 5 == handler->sendToSocket((unsigned char *)&buf, 5) );
+    CHECK( 5 == handler->send_to_socket((unsigned char *)&buf, 5) );
+
+    handler->_binding_mode = M2MInterface::TCP;
+    CHECK( 5 == handler->send_to_socket((unsigned char *)&buf, 5) );
+
+    handler->_binding_mode = M2MInterface::TCP_QUEUE;
+    CHECK( 5 == handler->send_to_socket((unsigned char *)&buf, 5) );
+
+    handler->_binding_mode = M2MInterface::UDP;
 
     common_stub::error = SOCKET_ERROR_WOULD_BLOCK;
-    CHECK( M2MConnectionHandler::CONNECTION_ERROR_WANTS_WRITE == handler->sendToSocket((unsigned char *)&buf, 5) );
+    CHECK( M2MConnectionHandler::CONNECTION_ERROR_WANTS_WRITE == handler->send_to_socket((unsigned char *)&buf, 5) );
 
     common_stub::error = SOCKET_ERROR_ALREADY_CONNECTED;
-    CHECK( -1 == handler->sendToSocket((unsigned char *)&buf, 5) );
+    CHECK( -1 == handler->send_to_socket((unsigned char *)&buf, 5) );
 }
 
-void Test_M2MConnectionHandlerPimpl_mbed::test_receiveFromSocket()
+void Test_M2MConnectionHandlerPimpl_mbed::test_receive_from_socket()
 {
     unsigned char *buf = (unsigned char *)malloc(6);
-    CHECK( 5 == handler->receiveFromSocket(buf, 5));
+    CHECK( 5 == handler->receive_from_socket(buf, 5));
+
+    handler->_binding_mode = M2MInterface::TCP;
+    common_stub::size = 5;
+    CHECK( 5 == handler->receive_from_socket(buf, 5));
+
+    handler->_binding_mode = M2MInterface::TCP_QUEUE;
+    CHECK( 5 == handler->receive_from_socket(buf, 5));
+
+    handler->_binding_mode = M2MInterface::UDP;
 
     common_stub::error = SOCKET_ERROR_WOULD_BLOCK;
-    CHECK( M2MConnectionHandler::CONNECTION_ERROR_WANTS_READ == handler->receiveFromSocket(buf, 5) );
+    CHECK( M2MConnectionHandler::CONNECTION_ERROR_WANTS_READ == handler->receive_from_socket(buf, 5) );
 
     common_stub::error = SOCKET_ERROR_ALREADY_CONNECTED;
-    CHECK( -1 == handler->receiveFromSocket(buf, 5) );
+    CHECK( -1 == handler->receive_from_socket(buf, 5) );
 
     free(buf);
 }

@@ -39,9 +39,9 @@ public:
 
     void test_stop_listening();
 
-    void test_sendToSocket();
+    void test_send_to_socket();
 
-    void test_receiveFromSocket();
+    void test_receive_from_socket();
 
     //Special case: test privates also
     void test_send_handler();

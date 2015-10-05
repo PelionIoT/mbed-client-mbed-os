@@ -93,12 +93,12 @@ TEST(M2MConnectionHandlerPimpl_mbed, test_stop_listening)
     handler->test_stop_listening();
 }
 
-TEST(M2MConnectionHandlerPimpl_mbed, test_sendToSocket)
+TEST(M2MConnectionHandlerPimpl_mbed, test_send_to_socket)
 {
-    handler->test_sendToSocket();
+    handler->test_send_to_socket();
 }
 
-TEST(M2MConnectionHandlerPimpl_mbed, test_receiveFromSocket)
+TEST(M2MConnectionHandlerPimpl_mbed, test_receive_from_socket)
 {
-    handler->test_receiveFromSocket();
+    handler->test_receive_from_socket();
 }
