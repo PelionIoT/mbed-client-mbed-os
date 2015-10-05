@@ -1,6 +1,6 @@
 {
   "name": "mbed-client-mbed-os",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "mbed specific component for mbed-client",
   "keywords": [],
   "author": "Yogesh Pande <yogesh.pande@arm.com>",
