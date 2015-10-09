@@ -7,8 +7,8 @@
   "homepage": "https://github.com/ARMmbed/mbed-client-mbed-os",
   "license": "Apache-2.0",
   "dependencies": {
-    "mbed-drivers": "~0.9.0",
-    "sockets": "~0.5.0"
+    "mbed-drivers": "<1.0.0",
+    "sockets": "<1.0.0"
   },
   "targetDependencies": {}
 }
