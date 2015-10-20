@@ -21,7 +21,7 @@
 #include "mbed-client/m2mconnectionobserver.h"
 #include "mbed-client/m2mconnectionsecurity.h"
 #include "nsdl-c/sn_nsdl.h"
-#include "mbed-net-sockets/Socket.h"
+#include "sockets/Socket.h"
 #include "mbed-net-socket-abstract/socket_api.h"
 
 using namespace mbed::Sockets::v0;
