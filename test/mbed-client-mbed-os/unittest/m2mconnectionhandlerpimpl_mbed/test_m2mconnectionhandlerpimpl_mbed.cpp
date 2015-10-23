@@ -189,7 +189,7 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
     CHECK(observer->error == true);
 
     observer->dataAvailable = false;
-    bserver->error = false;
+    observer->error = false;
     m2mconnectionsecurityimpl_stub::int_value = M2MConnectionHandler::CONNECTION_ERROR_WANTS_READ;
     handler->receive_handler(NULL);
     CHECK(observer->error == false);
