@@ -188,6 +188,13 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
     handler->receive_handler(NULL);
     CHECK(observer->error == true);
 
+    observer->dataAvailable = false;
+    bserver->error = false;
+    m2mconnectionsecurityimpl_stub::int_value = M2MConnectionHandler::CONNECTION_ERROR_WANTS_READ;
+    handler->receive_handler(NULL);
+    CHECK(observer->error == false);
+    CHECK(observer->dataAvailable == false);
+
     handler->_binding_mode = M2MInterface::TCP;
     observer->dataAvailable = false;
     m2mconnectionsecurityimpl_stub::int_value = 5;
