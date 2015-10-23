@@ -262,7 +262,7 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
         if(rcv_size >= 0){
             _observer.data_available((uint8_t*)_receive_buffer,
                                      rcv_size, *_socket_address);
-        }else{
+        } else if (M2MConnectionHandler::CONNECTION_ERROR_WANTS_READ != rcv_size) {
             _observer.socket_error(1);
             return;
         }
