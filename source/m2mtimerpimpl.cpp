@@ -31,6 +31,7 @@ M2MTimerPimpl::M2MTimerPimpl(M2MTimerObserver& observer)
 
 M2MTimerPimpl::~M2MTimerPimpl()
 {
+    _ticker.detach();
 }
 
 void M2MTimerPimpl::start_timer( uint64_t interval,
