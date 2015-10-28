@@ -115,11 +115,13 @@ void M2MTimerPimpl::dtls_timer_expired()
 {
     _status++;
     if(_status == 1) {
+       _observer.timer_expired(_type);
         _ticker.attach_us(this,
                           &M2MTimerPimpl::dtls_timer_expired,
                           (_total_interval - _intermediate_interval) * 1000);
     }else{
         _ticker.detach();
+        _observer.timer_expired(_type);
     }
 }
 

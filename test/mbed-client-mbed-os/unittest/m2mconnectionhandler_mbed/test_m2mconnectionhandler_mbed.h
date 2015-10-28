@@ -43,6 +43,8 @@ public:
 
     void test_receive_from_socket();
 
+    void test_handle_connection_error();
+
     M2MConnectionHandler* handler;
     TestObserver *observer;
 };
