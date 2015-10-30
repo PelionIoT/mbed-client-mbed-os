@@ -375,3 +375,9 @@ void M2MConnectionHandlerPimpl::error_handler(Socket */*socket*/,
         _observer.socket_error(2);
     }
 }
+
+void M2MConnectionHandlerPimpl::handle_connection_error(int /*error*/)
+{
+    //This will come from M2MConnectionSecurity class
+    _observer.socket_error(4);
+}

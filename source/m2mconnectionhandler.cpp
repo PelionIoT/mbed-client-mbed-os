@@ -74,3 +74,8 @@ bool M2MConnectionHandler::send_data(uint8_t *data,
     return _private_impl->send_data(data, data_len, address);
 }
 
+void M2MConnectionHandler::handle_connection_error(int error)
+{
+    _private_impl->handle_connection_error(error);
+}
+

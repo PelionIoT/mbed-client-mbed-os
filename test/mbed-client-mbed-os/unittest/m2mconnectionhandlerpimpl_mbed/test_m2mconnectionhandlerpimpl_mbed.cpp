@@ -326,3 +326,9 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_from_socket()
 
     free(buf);
 }
+
+void Test_M2MConnectionHandlerPimpl_mbed::test_handle_connection_error()
+{
+    handler->handle_connection_error(4);
+    CHECK(observer->error == true);
+}

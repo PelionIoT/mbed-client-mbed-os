@@ -43,6 +43,8 @@ public:
 
     void test_receive_from_socket();
 
+    void test_handle_connection_error();
+
     //Special case: test privates also
     void test_send_handler();
     void test_receive_handler();
