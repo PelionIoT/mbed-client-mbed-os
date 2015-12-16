@@ -17,7 +17,7 @@
 #define M2M_TIMER_PIMPL_H__
 
 #include <stdint.h>
-#include <Ticker.h>
+#include <mbed-drivers/Ticker.h>
 
 #include "mbed-client/m2mtimerobserver.h"
 
