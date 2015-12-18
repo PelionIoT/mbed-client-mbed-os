@@ -17,7 +17,7 @@
 #ifndef __MBED_NET_SOCKETS_V0_SOCKETADDR_H__
 #define __MBED_NET_SOCKETS_V0_SOCKETADDR_H__
 
-#include "mbed-net-socket-abstract/socket_types.h"
+#include "sal/socket_types.h"
 
 namespace mbed {
 namespace Sockets {
