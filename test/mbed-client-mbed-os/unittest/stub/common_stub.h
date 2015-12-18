@@ -21,7 +21,7 @@
 #include "sockets/UDPSocket.h"
 #include "nsdlaccesshelper.h"
 #include "ip6string.h"
-#include "Ticker.h"
+#include "mbed-drivers/Ticker.h"
 
 //some internal test related stuff
 namespace common_stub
