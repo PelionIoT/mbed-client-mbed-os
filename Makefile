@@ -47,7 +47,7 @@ test: $(TESTDIRS)
 	@rm -f lcov/index.xml
 	@find ./ -name '*.gcno' | xargs cp --backup=numbered -t ./coverage/
 	@find ./ -name '*.gcda' | xargs cp --backup=numbered -t ./coverage/
-	gcovr --object-directory ./coverage --exclude-unreachable-branches --exclude '/usr' --exclude '/yotta_modules/' --exclude '.*common*.' --exclude '.*common.mbed-net-sockets.v0*.' --exclude '.*mbed-client-mbed-os_unit_tests_master*.' --exclude '.*stub*.'  -x -o ./lcov/gcovr.xml
+	gcovr --object-directory ./coverage --exclude-unreachable-branches --exclude '/usr' --exclude '/yotta_modules/' --exclude '.*common*.' --exclude '.*common.mbed-net-sockets.v0*.' --exclude '.*mbed-client-mbed-os_unit_tests_master*.' --exclude '.*stub*.' --exclude '.*source.libCoap.src*.'  -x -o ./lcov/gcovr.xml
 	@lcov -d test/. -c -o $(COVERAGEFILE)
 	@lcov -q -r $(COVERAGEFILE) "/usr*" -o $(COVERAGEFILE)
 	@lcov -q -r $(COVERAGEFILE) "/test*" -o $(COVERAGEFILE)

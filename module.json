@@ -8,7 +8,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "mbed-drivers": "<1.0.0",
-    "sockets": "^1.0.0"
+    "sockets": "^1.0.0",
+    "mbed-client": "^1.2.14",
+    "mbed-client-c": "^1.1.2"
   },
   "targetDependencies": {}
 }
