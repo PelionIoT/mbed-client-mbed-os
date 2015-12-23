@@ -19,7 +19,7 @@ INCLUDE_DIRS =\
   ../../../../yotta_modules/mbed-client-c\
   ../../../../yotta_modules/mbed-client-c/source/libNsdl\
   ../../../../yotta_modules/mbed-client-c/source/libNsdl/src/include\
-  ../../../../yotta_modules/nanostack-libservice/mbed-client-libservice\
+  ../../../../yotta_modules/nanostack-libservice\
   /usr/include\
   $(CPPUTEST_HOME)/include\
 
