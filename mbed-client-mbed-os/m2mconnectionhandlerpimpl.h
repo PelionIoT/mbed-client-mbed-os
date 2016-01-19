@@ -20,6 +20,7 @@
 #include "mbed-client/m2minterface.h"
 #include "mbed-client/m2mconnectionobserver.h"
 #include "mbed-client/m2mconnectionsecurity.h"
+#include "mbed-client/m2mconstants.h"
 #include "nsdl-c/sn_nsdl.h"
 #include "sockets/Socket.h"
 #include "sal/socket_api.h"
@@ -162,7 +163,7 @@ private:
     const M2MSecurity                           *_security; //Not owned
     bool                                        _use_secure_connection;
     String                                      _server_address;
-    unsigned char                               _receive_buffer[1024];
+    unsigned char                               _receive_buffer[BUFFER_LENGTH];
     M2MInterface::BindingMode                   _binding_mode;
     M2MInterface::NetworkStack                  _network_stack;
     uint8_t                                     _received_address[16];
