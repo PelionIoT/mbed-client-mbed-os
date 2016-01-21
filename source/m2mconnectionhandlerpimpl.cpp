@@ -15,7 +15,6 @@
  */
 #include "mbed-client-mbed-os/m2mconnectionhandlerpimpl.h"
 #include "mbed-client/m2mconnectionobserver.h"
-#include "mbed-client/m2mconstants.h"
 #include "mbed-client/m2msecurity.h"
 #include "mbed-client/m2mconnectionhandler.h"
 
