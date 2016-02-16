@@ -267,12 +267,13 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
         }
     }else{
         socket_error_t error = SOCKET_ERROR_NONE;
+        uint16_t remote_port;
         if(_binding_mode == M2MInterface::TCP ||
            _binding_mode == M2MInterface::TCP_QUEUE){
             error = _mbed_socket->recv(_receive_buffer, &receive_length);
         }else{
             SocketAddr remote_address;
-            uint16_t remote_port;
+
             error = _mbed_socket->recv_from(_receive_buffer, &receive_length,&remote_address,&remote_port);
         }
         if (SOCKET_ERROR_NONE == error) {
@@ -286,7 +287,7 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
             } else if(_network_stack == M2MInterface::Nanostack_IPv6) {
                 _socket_address->_length = 16;
             }
-            _socket_address->_port = _socket_address->_port;
+            _socket_address->_port = remote_port;
             _socket_address->_stack = _network_stack;
             // Send data for processing.
             if(_binding_mode == M2MInterface::TCP ||
