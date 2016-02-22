@@ -215,6 +215,7 @@ int M2MConnectionHandlerPimpl::receive_from_socket(unsigned char *buf, size_t le
         SocketAddr remote_address;
         uint16_t remote_port;
         error = _mbed_socket->recv_from(buf, &len,&remote_address,&remote_port);
+        _socket_address->_port = remote_port;
     }
 
 
@@ -277,18 +278,7 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
             error = _mbed_socket->recv_from(_receive_buffer, &receive_length,&remote_address,&remote_port);
         }
         if (SOCKET_ERROR_NONE == error) {
-
-            memset(_socket_address,0,sizeof(M2MConnectionObserver::SocketAddress));
-
-            _socket_address->_address =_resolved_Address->getAddr()->ipv6be;
-            //TODO: Current support only for IPv4, add IPv6 support
-            if(_network_stack == M2MInterface::LwIP_IPv4) {
-                _socket_address->_length = 4;
-            } else if(_network_stack == M2MInterface::Nanostack_IPv6) {
-                _socket_address->_length = 16;
-            }
             _socket_address->_port = remote_port;
-            _socket_address->_stack = _network_stack;
             // Send data for processing.
             if(_binding_mode == M2MInterface::TCP ||
                _binding_mode == M2MInterface::TCP_QUEUE){
@@ -322,16 +312,15 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
 void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_addr sa, const char */*domain*/)
 {
     _resolved = true;
-    memset(_socket_address,0,sizeof(M2MConnectionObserver::SocketAddress));
-
-    _resolved_Address->setAddr(&sa);
-    _socket_address->_address = sa.ipv6be;
-
+    _resolved_Address->setAddr(&sa);        
     if(_resolved_Address->is_v4()) {
         _socket_address->_length = 4;
+        *(uint32_t *)(_socket_address->_address) = sa.ipv6be[3];
     } else {
         _socket_address->_length = 16;
+        _socket_address->_address = &sa;
     }
+
     _socket_address->_stack = _network_stack;
     _socket_address->_port = _server_port;
 
