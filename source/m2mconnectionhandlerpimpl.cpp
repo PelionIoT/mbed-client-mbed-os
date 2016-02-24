@@ -358,9 +358,10 @@ void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_ad
 void M2MConnectionHandlerPimpl::error_handler(Socket */*socket*/,
                                               socket_error_t error)
 {
-    //TODO: Socket error in dns resolving,
+    //TODO: Socket error in dns resolving, This needs to be checked if we need this callback or not.
+    // At least we need to ignore errors coming during handshake phase.
     // Define error code.
-    if(SOCKET_ERROR_NONE != error) {
+    if(SOCKET_ERROR_NONE != error && !_is_handshaking) {
         _observer.socket_error(2);
     }
 }
