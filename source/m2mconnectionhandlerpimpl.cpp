@@ -59,6 +59,13 @@ M2MConnectionHandlerPimpl::M2MConnectionHandlerPimpl(M2MConnectionHandler* base,
             _socket_stack = SOCKET_STACK_NANOSTACK_IPV6;
             socket_family = SOCKET_AF_INET6;
             break;
+		case M2MInterface::WINC1500_IPv4:
+            _socket_stack = SOCKET_STACK_WINC1500_IPV4;
+            break;
+        case M2MInterface::WINC1500_IPv6:
+            _socket_stack = SOCKET_STACK_WINC1500_IPV6;
+            socket_family = SOCKET_AF_INET6;
+            break;
         case M2MInterface::Unknown:
             _socket_stack = SOCKET_STACK_MAX;
             break;
