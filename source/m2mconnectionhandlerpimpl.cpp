@@ -59,7 +59,7 @@ M2MConnectionHandlerPimpl::M2MConnectionHandlerPimpl(M2MConnectionHandler* base,
             _socket_stack = SOCKET_STACK_NANOSTACK_IPV6;
             socket_family = SOCKET_AF_INET6;
             break;
-		case M2MInterface::ATWINC_IPv4:
+	case M2MInterface::ATWINC_IPv4:
             _socket_stack = SOCKET_STACK_ATWINC_IPV4;
             break;
         case M2MInterface::Unknown:
