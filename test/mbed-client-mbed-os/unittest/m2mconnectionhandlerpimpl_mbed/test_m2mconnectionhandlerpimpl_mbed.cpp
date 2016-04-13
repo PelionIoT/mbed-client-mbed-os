@@ -78,8 +78,11 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_constructor()
     M2MConnectionHandlerPimpl impl5 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::Nanostack_IPv6);
     CHECK(impl5._socket_stack == SOCKET_STACK_NANOSTACK_IPV6);
 
-    M2MConnectionHandlerPimpl impl6 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::Unknown);
-    CHECK(impl6._socket_stack == SOCKET_STACK_MAX);
+    M2MConnectionHandlerPimpl impl6 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::ATWINC_IPv4);
+    CHECK(impl6._socket_stack == SOCKET_STACK_ATWINC_IPV4);
+
+    M2MConnectionHandlerPimpl impl7 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::Unknown);
+    CHECK(impl7._socket_stack == SOCKET_STACK_MAX);
 }
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_bind_connection()
