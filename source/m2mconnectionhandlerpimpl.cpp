@@ -33,7 +33,8 @@ M2MConnectionHandlerPimpl::M2MConnectionHandlerPimpl(M2MConnectionHandler* base,
  _resolved_Address(new SocketAddr()),
  _resolved(true),
  _socket_stack(SOCKET_STACK_UNINIT),
- _is_handshaking(false)
+ _is_handshaking(false),
+ _security(NULL)
 {
     _socket_address = (M2MConnectionObserver::SocketAddress *)malloc(sizeof(M2MConnectionObserver::SocketAddress));
     memset(_socket_address, 0, sizeof(M2MConnectionObserver::SocketAddress));
