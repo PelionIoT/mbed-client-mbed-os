@@ -24,7 +24,13 @@
 class TestObserver : public M2MConnectionObserver {
 
 public:
-    TestObserver(){}
+    TestObserver() :
+        dataAvailable(false),
+        error(false),
+        addressReady(false),
+        dataSent(false)
+    {
+    }
 
     virtual ~TestObserver(){}
 
@@ -36,9 +42,9 @@ public:
 
     void address_ready(const M2MConnectionObserver::SocketAddress &,
                        M2MConnectionObserver::ServerType,
-                       const uint16_t){}
+                       const uint16_t){ addressReady = true;}
 
-    void data_sent(){}
+    void data_sent(){dataSent = true;}
 
     bool dataAvailable;
     bool error;
@@ -239,21 +245,21 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_dns_handler()
     common_stub::bool_value = true;
 
     socket_addr sa;
+    memset(&sa, 0, sizeof(struct socket_addr));
     handler->dns_handler(NULL,sa,NULL);
     CHECK(observer->addressReady == true);
+    observer->addressReady = false;
 
     common_stub::bool_value = false;
     handler->_network_stack = M2MInterface::Nanostack_IPv6;
     handler->dns_handler(NULL,sa,NULL);
     CHECK(observer->addressReady == true);
-
-    handler->dns_handler(NULL,sa,NULL);
-    CHECK(observer->error == true);
+    observer->addressReady = false;
 
     handler->_binding_mode = M2MInterface::TCP;
     handler->dns_handler(NULL,sa,NULL);
-    CHECK(observer->error == true);
-
+    CHECK(observer->error == false);
+    CHECK(observer->addressReady == true);
 
     M2MConnectionSecurity* conSec = new M2MConnectionSecurity(M2MConnectionSecurity::TLS);
     handler->_security_impl = conSec;
