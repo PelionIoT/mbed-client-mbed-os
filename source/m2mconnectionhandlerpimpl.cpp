@@ -251,7 +251,7 @@ void M2MConnectionHandlerPimpl::receive_handshake_handler(Socket */*socket*/)
             // Define error code.
             _is_handshaking = false;
             _mbed_socket->setOnReadable(NULL);
-            _observer.socket_error(4);
+            _observer.socket_error(M2MConnectionHandler::SSL_CONNECTION_ERROR);
         }
     }
 }
@@ -267,7 +267,7 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
             _observer.data_available((uint8_t*)_receive_buffer,
                                      rcv_size, *_socket_address);
         } else if (M2MConnectionHandler::CONNECTION_ERROR_WANTS_READ != rcv_size) {
-            _observer.socket_error(1);
+            _observer.socket_error(M2MConnectionHandler::SOCKET_READ_ERROR);
             return;
         }
     }else{
@@ -300,7 +300,7 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
                         }
                     }
                 }else{
-                    _observer.socket_error(1);
+                    _observer.socket_error(M2MConnectionHandler::SOCKET_READ_ERROR);
                 }
             } else { // Observer for UDP plain mode
                 _observer.data_available((uint8_t*)_receive_buffer,
@@ -308,7 +308,7 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
             }
         } else {
             // Socket error in receiving
-            _observer.socket_error(1);
+            _observer.socket_error(M2MConnectionHandler::SOCKET_READ_ERROR);
         }
     }
 }
@@ -342,11 +342,9 @@ void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_ad
                 _is_handshaking = true;
                 _mbed_socket->setOnReadable(MbedSocket::ReadableHandler_t(this, &M2MConnectionHandlerPimpl::receive_handshake_handler));
                 if( _security_impl->start_connecting_non_blocking(_base) < 0 ){
-                    //TODO: Socket error in SSL handshake,
-                    // Define error code.
                     _is_handshaking = false;
                     _mbed_socket->setOnReadable(NULL);
-                    _observer.socket_error(4);
+                    _observer.socket_error(M2MConnectionHandler::SSL_CONNECTION_ERROR);
                     return;
                 }
             }
@@ -366,12 +364,12 @@ void M2MConnectionHandlerPimpl::error_handler(Socket */*socket*/,
     // At least we need to ignore errors coming during handshake phase.
     // Define error code.
     if(SOCKET_ERROR_NONE != error && !_is_handshaking) {
-        _observer.socket_error(2);
+        _observer.socket_error(M2MConnectionHandler::DNS_RESOLVING_ERROR);
     }
 }
 
-void M2MConnectionHandlerPimpl::handle_connection_error(int /*error*/)
+void M2MConnectionHandlerPimpl::handle_connection_error(int error)
 {
     //This will come from M2MConnectionSecurity class
-    _observer.socket_error(4);
+    _observer.socket_error(error);
 }
