@@ -53,11 +53,10 @@ void M2MTimerPimpl::start_timer( uint64_t interval,
                       &M2MTimerPimpl::still_left_timer_expired,
                       2000 * 1000 * 1000);
     } else {
-    _ticker.attach_us(this,
-                  &M2MTimerPimpl::timer_expired,
-                  _interval * 1000);
+        _ticker.attach_us(this,
+                      &M2MTimerPimpl::timer_expired,
+                      _interval * 1000);
     }
-
 }
 
 void M2MTimerPimpl::start_dtls_timer(uint64_t intermediate_interval, uint64_t total_interval, M2MTimerObserver::Type type)
@@ -76,15 +75,15 @@ void M2MTimerPimpl::stop_timer()
 {
     _interval = 0;
     _still_left = 0;
-    _single_shot = false;
+    _single_shot = true;
     _ticker.detach();
 }
 
 void M2MTimerPimpl::timer_expired()
 {
     _observer.timer_expired(_type);
-    if(!_single_shot) {
-        start_timer(_interval, _type, _single_shot);
+    if(_single_shot) {
+        _ticker.detach();
     }
 }
 
@@ -123,7 +122,6 @@ void M2MTimerPimpl::dtls_timer_expired()
         _observer.timer_expired(_type);
     }
 }
-
 
 bool M2MTimerPimpl::is_intermediate_interval_passed()
 {
