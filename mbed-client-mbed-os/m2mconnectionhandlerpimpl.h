@@ -156,6 +156,17 @@ private:
     */
     void receive_handshake_handler(Socket *socket);
 
+    /**
+    * @brief Initialize mbed OS socket
+    */
+    void init_socket();
+
+    /**
+    * @brief Check socket type
+    * @return True if TCP connection otherwise false
+    */
+    bool is_tcp_connection();
+
 private:
     M2MConnectionHandler                        *_base;
     M2MConnectionObserver                       &_observer;
@@ -168,13 +179,13 @@ private:
     M2MInterface::NetworkStack                  _network_stack;
     uint8_t                                     _received_address[16];
     M2MConnectionObserver::SocketAddress        *_socket_address;
-    SocketAddr                                  *_resolved_Address;
+    SocketAddr                                  *_resolved_address;
     M2MConnectionObserver::ServerType           _server_type;
     uint16_t                                    _server_port;
-    bool                                        _resolved;
     socket_stack_t                              _socket_stack;
     bool                                        _is_handshaking;
-    MbedSocket                                 *_mbed_socket;            //owned
+    MbedSocket                                 *_mbed_socket; //owned
+    bool                                        _error_reported;
 
 friend class Test_M2MConnectionHandlerPimpl;
 friend class Test_M2MConnectionHandlerPimpl_mbed;
