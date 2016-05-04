@@ -138,6 +138,8 @@ bool M2MConnectionHandlerPimpl::start_listening_for_data()
 {
     // Boolean return required for other platforms,
     // not needed in mbed Socket.
+    tr_debug("M2MConnectionHandlerPimpl::start_listening_for_data");
+    _mbed_socket->setOnReadable(NULL);
     _mbed_socket->setOnReadable(MbedSocket::ReadableHandler_t(this, &M2MConnectionHandlerPimpl::receive_handler));
     return true;
 }
@@ -285,24 +287,31 @@ void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_ad
            _security->resource_value_int(M2MSecurity::SecurityMode) == M2MSecurity::Psk ){
             if( _security_impl != NULL ){
                 _security_impl->reset();
-                _security_impl->init(_security);
-                _is_handshaking = true;
-                _mbed_socket->setOnReadable(MbedSocket::ReadableHandler_t(this,
-                        &M2MConnectionHandlerPimpl::receive_handshake_handler));
-                tr_debug("M2MConnectionHandlerPimpl::dns_handler - start handshake");
-                if( _security_impl->start_connecting_non_blocking(_base) < 0 ){
-                    tr_debug("M2MConnectionHandlerPimpl::dns_handler - handshake failed");
-                    _is_handshaking = false;
-                    _mbed_socket->setOnReadable(NULL);
-                    if (!_error_reported) {
-                        _observer.socket_error(M2MConnectionHandler::SSL_CONNECTION_ERROR);
-                        _mbed_socket->close();
-                        delete _mbed_socket;
-                        _mbed_socket = NULL;
-                        _error_reported = true;
+                if (_security_impl->init(_security) == 0) {
+                    _is_handshaking = true;
+                    _mbed_socket->setOnReadable(MbedSocket::ReadableHandler_t(this,
+                            &M2MConnectionHandlerPimpl::receive_handshake_handler));
+                    tr_debug("M2MConnectionHandlerPimpl::dns_handler - start handshake");
+                    if( _security_impl->start_connecting_non_blocking(_base) < 0 ){
+                        tr_debug("M2MConnectionHandlerPimpl::dns_handler - handshake failed");
+                        _is_handshaking = false;
+                        _mbed_socket->setOnReadable(NULL);
+                        if (!_error_reported) {
+                            _observer.socket_error(M2MConnectionHandler::SSL_CONNECTION_ERROR);
+                            _mbed_socket->close();
+                            delete _mbed_socket;
+                            _mbed_socket = NULL;
+                            _error_reported = true;
+                        }
+                        return;
                     }
-                    return;
+                } else {
+                    tr_error("M2MConnectionHandlerPimpl::dns_handler - init failed");
+                    _observer.socket_error(M2MConnectionHandler::SSL_CONNECTION_ERROR, false);
                 }
+            } else {
+                tr_error("M2MConnectionHandlerPimpl::dns_handler - sec is null");
+                _observer.socket_error(M2MConnectionHandler::SSL_CONNECTION_ERROR, false);
             }
         }
     }
@@ -321,7 +330,8 @@ void M2MConnectionHandlerPimpl::error_handler(Socket */*socket*/,
         tr_debug("M2MConnectionHandlerPimpl::error_handler - socket already deleted");
         return;
     }
-    M2MConnectionHandler::ConnectionError client_err = M2MConnectionHandler::ERROR_NONE;
+    bool retry = true;
+    M2MConnectionHandler::ConnectionError error_code = M2MConnectionHandler::ERROR_NONE;
     switch(error) {
         case SOCKET_ERROR_UNKNOWN:
         case SOCKET_ERROR_UNIMPLEMENTED:
@@ -344,19 +354,20 @@ void M2MConnectionHandlerPimpl::error_handler(Socket */*socket*/,
         case SOCKET_ERROR_INTERFACE_ERROR:
         case SOCKET_ERROR_API_VERSION:
         case SOCKET_ERROR_NOT_BOUND:
-            client_err = M2MConnectionHandler::SOCKET_ABORT;
+            error_code = M2MConnectionHandler::SOCKET_ABORT;
+            retry = false;
             break;
 
         case SOCKET_ERROR_DNS_FAILED:
         case SOCKET_ERROR_ADDRESS_IN_USE:
-            client_err = M2MConnectionHandler::DNS_RESOLVING_ERROR;
+            error_code = M2MConnectionHandler::DNS_RESOLVING_ERROR;
             break;
         case SOCKET_ERROR_ABORT:
         case SOCKET_ERROR_RESET:
             if (_is_handshaking)
-                client_err = M2MConnectionHandler::SSL_CONNECTION_ERROR;
+                error_code = M2MConnectionHandler::SSL_CONNECTION_ERROR;
             else{
-                client_err = M2MConnectionHandler::SOCKET_READ_ERROR;
+                error_code = M2MConnectionHandler::SOCKET_READ_ERROR;
             }
             break;
         default:
@@ -364,7 +375,7 @@ void M2MConnectionHandlerPimpl::error_handler(Socket */*socket*/,
     }
 
     if(SOCKET_ERROR_NONE != error && !_error_reported) {
-        _observer.socket_error(client_err);
+        _observer.socket_error(error_code, retry);
         _mbed_socket->close();
         delete _mbed_socket;
         _mbed_socket = NULL;
