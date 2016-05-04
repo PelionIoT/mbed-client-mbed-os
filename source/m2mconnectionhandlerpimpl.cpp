@@ -51,11 +51,7 @@ M2MConnectionHandlerPimpl::~M2MConnectionHandlerPimpl()
         delete _resolved_address;
         _resolved_address = NULL;
     }
-    if(_mbed_socket) {
-        _mbed_socket->close();
-        delete _mbed_socket;
-        _mbed_socket = NULL;
-    }
+    close_socket();
     if(_socket_address) {
         free(_socket_address);
     }
@@ -136,12 +132,13 @@ void M2MConnectionHandlerPimpl::send_handler(Socket */*socket*/, uint16_t /*data
 
 bool M2MConnectionHandlerPimpl::start_listening_for_data()
 {
-    // Boolean return required for other platforms,
-    // not needed in mbed Socket.
     tr_debug("M2MConnectionHandlerPimpl::start_listening_for_data");
-    _mbed_socket->setOnReadable(NULL);
-    _mbed_socket->setOnReadable(MbedSocket::ReadableHandler_t(this, &M2MConnectionHandlerPimpl::receive_handler));
-    return true;
+    if (_mbed_socket) {
+        _mbed_socket->setOnReadable(NULL);
+        _mbed_socket->setOnReadable(MbedSocket::ReadableHandler_t(this, &M2MConnectionHandlerPimpl::receive_handler));
+        return true;
+    }
+    return false;
 }
 
 void M2MConnectionHandlerPimpl::stop_listening()
@@ -298,20 +295,22 @@ void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_ad
                         _mbed_socket->setOnReadable(NULL);
                         if (!_error_reported) {
                             _observer.socket_error(M2MConnectionHandler::SSL_CONNECTION_ERROR);
-                            _mbed_socket->close();
-                            delete _mbed_socket;
-                            _mbed_socket = NULL;
                             _error_reported = true;
+                            close_socket();
                         }
                         return;
                     }
                 } else {
                     tr_error("M2MConnectionHandlerPimpl::dns_handler - init failed");
                     _observer.socket_error(M2MConnectionHandler::SSL_CONNECTION_ERROR, false);
+                    _error_reported = true;
+                    close_socket();
                 }
             } else {
                 tr_error("M2MConnectionHandlerPimpl::dns_handler - sec is null");
                 _observer.socket_error(M2MConnectionHandler::SSL_CONNECTION_ERROR, false);
+                _error_reported = true;
+                close_socket();
             }
         }
     }
@@ -376,9 +375,7 @@ void M2MConnectionHandlerPimpl::error_handler(Socket */*socket*/,
 
     if(SOCKET_ERROR_NONE != error && !_error_reported) {
         _observer.socket_error(error_code, retry);
-        _mbed_socket->close();
-        delete _mbed_socket;
-        _mbed_socket = NULL;
+        close_socket();
     } else {
         tr_debug("M2MConnectionHandlerPimpl::error_handler - error already reported");
     }
@@ -395,11 +392,7 @@ void M2MConnectionHandlerPimpl::init_socket()
     tr_debug("M2MConnectionHandlerPimpl::init_socket - IN");
     _error_reported = false;
     _is_handshaking = false;
-    if(_mbed_socket) {
-        _mbed_socket->close();
-        delete _mbed_socket;
-        _mbed_socket = NULL;
-    }
+    close_socket();
     socket_address_family_t socket_family = SOCKET_AF_INET4;
     switch(_network_stack) {
         case M2MInterface::Uninitialized:
@@ -451,4 +444,13 @@ bool M2MConnectionHandlerPimpl::is_tcp_connection()
 {
     return _binding_mode == M2MInterface::TCP ||
             _binding_mode == M2MInterface::TCP_QUEUE ? true : false;
+}
+
+void M2MConnectionHandlerPimpl::close_socket()
+{
+    if(_mbed_socket) {
+        _mbed_socket->close();
+        delete _mbed_socket;
+        _mbed_socket = NULL;
+    }
 }

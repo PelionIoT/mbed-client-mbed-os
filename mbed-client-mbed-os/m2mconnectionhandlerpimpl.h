@@ -167,6 +167,11 @@ private:
     */
     bool is_tcp_connection();
 
+    /**
+    * @brief Close and delete socket
+    */
+    void close_socket();
+
 private:
     M2MConnectionHandler                        *_base;
     M2MConnectionObserver                       &_observer;
