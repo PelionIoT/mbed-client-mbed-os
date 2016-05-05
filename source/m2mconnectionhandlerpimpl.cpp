@@ -62,6 +62,7 @@ M2MConnectionHandlerPimpl::~M2MConnectionHandlerPimpl()
 bool M2MConnectionHandlerPimpl::bind_connection(const uint16_t listen_port)
 {
     tr_debug("M2MConnectionHandlerPimpl::bind_connection , port %d", listen_port);
+    close_socket();
     init_socket();
     socket_error_t err = SOCKET_ERROR_NONE;
     if(_mbed_socket) {
@@ -149,6 +150,10 @@ void M2MConnectionHandlerPimpl::stop_listening()
 int M2MConnectionHandlerPimpl::send_to_socket(const unsigned char *buf, size_t len)
 {
     tr_debug("M2MConnectionHandlerPimpl::send_to_socket");
+    if (!_mbed_socket) {
+        return -1;
+    }
+
     socket_error_t error = SOCKET_ERROR_NONE;
     if(is_tcp_connection()){
         error = _mbed_socket->send(buf, len);
@@ -169,6 +174,10 @@ int M2MConnectionHandlerPimpl::receive_from_socket(unsigned char *buf, size_t le
 {
     tr_debug("M2MConnectionHandlerPimpl::receive_from_socket");
     socket_error_t error;
+    if (!_mbed_socket) {
+        return -1;
+    }
+
     if(is_tcp_connection()){
         error = _mbed_socket->recv(buf, &len);
     }else{
@@ -190,6 +199,10 @@ int M2MConnectionHandlerPimpl::receive_from_socket(unsigned char *buf, size_t le
 void M2MConnectionHandlerPimpl::receive_handshake_handler(Socket */*socket*/)
 {
     tr_debug("M2MConnectionHandlerPimpl::receive_handshake_handler");
+    if (!_mbed_socket) {
+        return;
+    }
+
     memset(_receive_buffer, 0, BUFFER_LENGTH);
     if( _is_handshaking ){
         int ret = _security_impl->continue_connecting();
@@ -212,6 +225,10 @@ void M2MConnectionHandlerPimpl::receive_handshake_handler(Socket */*socket*/)
 void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
 {
     tr_debug("M2MConnectionHandlerPimpl::receive_handler");
+    if (!_mbed_socket) {
+        return;
+    }
+
     memset(_receive_buffer, 0, BUFFER_LENGTH);
     size_t receive_length = sizeof(_receive_buffer);
 
@@ -262,6 +279,9 @@ void M2MConnectionHandlerPimpl::receive_handler(Socket */*socket*/)
 void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_addr sa, const char */*domain*/)
 {
     tr_debug("M2MConnectionHandlerPimpl::dns_handler");
+    if (!_mbed_socket) {
+        return;
+    }
 
     _resolved_address->setAddr(&sa);
     socket_error_t socket_err = SOCKET_ERROR_NONE;
@@ -326,10 +346,9 @@ void M2MConnectionHandlerPimpl::error_handler(Socket */*socket*/,
                                               socket_error_t error)
 {
     if (!_mbed_socket) {
-        tr_debug("M2MConnectionHandlerPimpl::error_handler - socket already deleted");
         return;
     }
-    bool retry = true;
+    tr_debug("M2MConnectionHandlerPimpl::error_handler - error code: %d", error);
     M2MConnectionHandler::ConnectionError error_code = M2MConnectionHandler::ERROR_NONE;
     switch(error) {
         case SOCKET_ERROR_UNKNOWN:
@@ -354,13 +373,11 @@ void M2MConnectionHandlerPimpl::error_handler(Socket */*socket*/,
         case SOCKET_ERROR_API_VERSION:
         case SOCKET_ERROR_NOT_BOUND:
             error_code = M2MConnectionHandler::SOCKET_ABORT;
-            retry = false;
             break;
-
         case SOCKET_ERROR_DNS_FAILED:
         case SOCKET_ERROR_ADDRESS_IN_USE:
             error_code = M2MConnectionHandler::DNS_RESOLVING_ERROR;
-            break;
+            break;            
         case SOCKET_ERROR_ABORT:
         case SOCKET_ERROR_RESET:
             if (_is_handshaking)
@@ -374,7 +391,7 @@ void M2MConnectionHandlerPimpl::error_handler(Socket */*socket*/,
     }
 
     if(SOCKET_ERROR_NONE != error && !_error_reported) {
-        _observer.socket_error(error_code, retry);
+        _observer.socket_error(error_code, true);
         close_socket();
     } else {
         tr_debug("M2MConnectionHandlerPimpl::error_handler - error already reported");
@@ -392,7 +409,7 @@ void M2MConnectionHandlerPimpl::init_socket()
     tr_debug("M2MConnectionHandlerPimpl::init_socket - IN");
     _error_reported = false;
     _is_handshaking = false;
-    close_socket();
+    int ret = 0;
     socket_address_family_t socket_family = SOCKET_AF_INET4;
     switch(_network_stack) {
         case M2MInterface::Uninitialized:
@@ -421,7 +438,6 @@ void M2MConnectionHandlerPimpl::init_socket()
         default:
             break;
     }
-    int ret = 0;
 
     if(is_tcp_connection()){
         _mbed_socket = new MbedSocket(_socket_stack, SOCKET_STREAM);
@@ -448,6 +464,9 @@ bool M2MConnectionHandlerPimpl::is_tcp_connection()
 
 void M2MConnectionHandlerPimpl::close_socket()
 {
+    if (_security_impl) {
+        _security_impl->reset();
+    }
     if(_mbed_socket) {
         _mbed_socket->close();
         delete _mbed_socket;
