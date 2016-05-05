@@ -270,7 +270,7 @@ void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_ad
         *(uint32_t *)(_socket_address->_address) = sa.ipv6be[3];
     } else {
         _socket_address->_length = 16;
-        _socket_address->_address = &sa;
+        *(uint32_t *)(_socket_address->_address) = *sa.ipv6be;
     }
 
     _socket_address->_stack = _network_stack;
