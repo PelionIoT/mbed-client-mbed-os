@@ -38,7 +38,7 @@ public:
                         uint16_t,
                         const M2MConnectionObserver::SocketAddress &){dataAvailable = true;}
 
-    void socket_error(uint8_t ){ error = true; }
+    void socket_error(uint8_t, bool ){ error = true; }
 
     void address_ready(const M2MConnectionObserver::SocketAddress &,
                        M2MConnectionObserver::ServerType,
@@ -70,25 +70,7 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_constructor()
 {
     TestObserver obs;
     M2MConnectionHandlerPimpl impl = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::TCP_QUEUE,M2MInterface::Uninitialized);
-    CHECK(impl._socket_stack == SOCKET_STACK_UNINIT);
-
-    M2MConnectionHandlerPimpl impl2 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::LwIP_IPv4);
-    CHECK(impl2._socket_stack == SOCKET_STACK_LWIP_IPV4);
-
-    M2MConnectionHandlerPimpl impl3 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::LwIP_IPv6);
-    CHECK(impl3._socket_stack == SOCKET_STACK_LWIP_IPV6);
-
-    M2MConnectionHandlerPimpl impl4 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::Reserved);
-    CHECK(impl4._socket_stack == SOCKET_STACK_RESERVED);
-
-    M2MConnectionHandlerPimpl impl5 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::Nanostack_IPv6);
-    CHECK(impl5._socket_stack == SOCKET_STACK_NANOSTACK_IPV6);
-
-    M2MConnectionHandlerPimpl impl6 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::ATWINC_IPv4);
-    CHECK(impl6._socket_stack == SOCKET_STACK_ATWINC_IPV4);
-
-    M2MConnectionHandlerPimpl impl7 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::Unknown);
-    CHECK(impl7._socket_stack == SOCKET_STACK_MAX);
+    CHECK(impl._socket_address != NULL);
 }
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_bind_connection()
@@ -104,6 +86,8 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_bind_connection()
 void Test_M2MConnectionHandlerPimpl_mbed::test_resolve_server_address()
 {
     common_stub::error = SOCKET_ERROR_NONE;
+    CHECK(handler->resolve_server_address("10", 7, M2MConnectionObserver::LWM2MServer, NULL) == false);
+    handler->init_socket();
     CHECK(handler->resolve_server_address("10", 7, M2MConnectionObserver::LWM2MServer, NULL) == true);
 }
 
@@ -114,6 +98,10 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_send_data()
     CHECK( false == handler->send_data(NULL, 0 , NULL));
 
     uint8_t* data = (uint8_t*)malloc(5);
+    CHECK(false == handler->send_data(data, 0 , NULL));
+    CHECK(false == handler->send_data(data, 0 , addr));
+
+    handler->init_socket();
     CHECK(true == handler->send_data(data, 0 , addr));
 
     handler->_binding_mode = M2MInterface::TCP;
@@ -123,10 +111,18 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_send_data()
     handler->_security_impl = conSec;
     handler->_use_secure_connection = true;
     CHECK(false == handler->send_data(data, 0 , addr));
+
     m2mconnectionsecurityimpl_stub::int_value = 5;
     CHECK(true == handler->send_data(data, 0 , addr));
     handler->_security_impl = NULL;
     delete conSec;
+
+    // Non secure
+    handler->_use_secure_connection = false;
+    CHECK(true == handler->send_data(data, 0 , addr));
+
+    handler->_binding_mode = M2MInterface::UDP;
+    CHECK(true == handler->send_data(data, 0 , addr));
 
     free(data);
     free(addr);
@@ -134,6 +130,8 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_send_data()
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_start_listening_for_data()
 {
+    CHECK(false == handler->start_listening_for_data());
+    handler->init_socket();
     CHECK(true == handler->start_listening_for_data());
 }
 
@@ -145,6 +143,10 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_send_handler()
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
 {
+    handler->receive_handler(NULL);
+    CHECK(handler->_mbed_socket == NULL);
+    handler->init_socket();
+
     observer->dataAvailable = false;
     handler->_network_stack = M2MInterface::LwIP_IPv4;
     handler->receive_handler(NULL);
@@ -154,7 +156,6 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
     handler->_network_stack = M2MInterface::Nanostack_IPv6;
     handler->receive_handler(NULL);
     CHECK(observer->dataAvailable == true);
-
 
     common_stub::error = SOCKET_ERROR_NONE;
     common_stub::size = 5;
@@ -175,18 +176,14 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
     handler->_binding_mode = M2MInterface::TCP_QUEUE;
     observer->dataAvailable = false;
     handler->_network_stack = M2MInterface::Nanostack_IPv6;
-    handler->receive_handler(NULL);
-    CHECK(observer->error == true);
-
-
-    handler->_binding_mode = M2MInterface::UDP;
-
-    handler->receive_handler(NULL);
-    CHECK(observer->error == true);
+    handler->receive_handler(NULL);    
+    CHECK(observer->error == false);
+    CHECK(observer->dataAvailable == false);
 
     common_stub::error = SOCKET_ERROR_BAD_FAMILY;
-    handler->receive_handler(NULL);
-    CHECK(observer->error == true);
+    handler->receive_handler(NULL);    
+    CHECK(observer->error == false);
+    CHECK(observer->dataAvailable == false);
 
     common_stub::error = SOCKET_ERROR_NONE;
 
@@ -195,7 +192,8 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
     handler->_use_secure_connection = true;
     m2mconnectionsecurityimpl_stub::int_value = -5;
     handler->receive_handler(NULL);
-    CHECK(observer->error == true);
+    CHECK(observer->error == false);
+    CHECK(observer->dataAvailable == false);
 
     observer->dataAvailable = false;
     observer->error = false;
@@ -210,7 +208,6 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
     handler->receive_handler(NULL);
     CHECK(observer->dataAvailable == true);
 
-    //observer->error = false;
     observer->dataAvailable = false;
     m2mconnectionsecurityimpl_stub::int_value = 2;
     handler->receive_handler(NULL);
@@ -222,6 +219,11 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handshake_handler()
 {
+    handler->_is_handshaking = false;
+    handler->receive_handshake_handler(NULL);
+    CHECK(false == handler->_is_handshaking);
+
+    handler->init_socket();
     handler->_is_handshaking = true;
     m2mconnectionsecurityimpl_stub::int_value = M2MConnectionHandler::CONNECTION_ERROR_WANTS_READ;
     handler->receive_handshake_handler(NULL);
@@ -239,13 +241,17 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handshake_handler()
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_dns_handler()
 {
+    socket_addr sa;
+    memset(&sa, 0, sizeof(struct socket_addr));
+    handler->dns_handler(NULL,sa,NULL);
+    CHECK(observer->addressReady == false);
+
+    handler->init_socket();
     common_stub::event = (socket_event_t*)malloc(sizeof(socket_event_t));
     memset(common_stub::event, 0, sizeof(socket_event_t));
     handler->_network_stack = M2MInterface::LwIP_IPv4;
     common_stub::bool_value = true;
 
-    socket_addr sa;
-    memset(&sa, 0, sizeof(struct socket_addr));
     handler->dns_handler(NULL,sa,NULL);
     CHECK(observer->addressReady == true);
     observer->addressReady = false;
@@ -271,9 +277,10 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_dns_handler()
     handler->_security = sec;
     handler->dns_handler(NULL,sa,NULL);
     CHECK(false == handler->_is_handshaking);
-    m2mconnectionsecurityimpl_stub::int_value = 5;
+
+    /*m2mconnectionsecurityimpl_stub::int_value = 5;
     handler->dns_handler(NULL,sa,NULL);
-    CHECK(true == handler->_is_handshaking);
+    CHECK(true == handler->_is_handshaking);*/
 
     handler->_security_impl = NULL;
     delete conSec;
@@ -284,18 +291,46 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_dns_handler()
 void Test_M2MConnectionHandlerPimpl_mbed::test_error_handler()
 {
     handler->error_handler(NULL,SOCKET_ERROR_BAD_FAMILY);
+    CHECK(observer->error == false);
+
+    handler->init_socket();
+    handler->error_handler(NULL,SOCKET_ERROR_NONE);
+    CHECK(observer->error == false);
+
+    handler->error_handler(NULL,SOCKET_ERROR_BAD_FAMILY);
     CHECK(observer->error == true);
+    CHECK(handler->_mbed_socket == NULL);
+
+    handler->init_socket();
+    handler->error_handler(NULL,SOCKET_ERROR_DNS_FAILED);
+    CHECK(observer->error == true);
+    CHECK(handler->_mbed_socket == NULL);
+
+    handler->init_socket();
+    handler->error_handler(NULL,SOCKET_ERROR_RESET);
+    CHECK(observer->error == true);
+    CHECK(handler->_mbed_socket == NULL);
+
+    handler->init_socket();
+    handler->_is_handshaking = true;
+    handler->error_handler(NULL,SOCKET_ERROR_RESET);
+    CHECK(observer->error == true);
+    CHECK(handler->_mbed_socket == NULL);
 }
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_stop_listening()
 {
     // Empty function to cover the cases
     handler->stop_listening();
+    CHECK(handler->_error_reported == true);
 }
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_send_to_socket()
 {
     const char buf[] = "hello";
+    CHECK( -1 == handler->send_to_socket((unsigned char *)&buf, 5) );
+
+    handler->init_socket();
     CHECK( 5 == handler->send_to_socket((unsigned char *)&buf, 5) );
 
     handler->_binding_mode = M2MInterface::TCP;
@@ -316,6 +351,9 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_send_to_socket()
 void Test_M2MConnectionHandlerPimpl_mbed::test_receive_from_socket()
 {
     unsigned char *buf = (unsigned char *)malloc(6);
+    CHECK( -1 == handler->receive_from_socket(buf, 5));
+
+    handler->init_socket();
     CHECK( 5 == handler->receive_from_socket(buf, 5));
 
     handler->_binding_mode = M2MInterface::TCP;
@@ -340,4 +378,65 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_handle_connection_error()
 {
     handler->handle_connection_error(4);
     CHECK(observer->error == true);
+}
+
+void Test_M2MConnectionHandlerPimpl_mbed::test_init_socket()
+{
+    TestObserver obs;
+
+    M2MConnectionHandlerPimpl impl2 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::LwIP_IPv4);
+    impl2.init_socket();
+    CHECK(impl2._socket_stack == SOCKET_STACK_LWIP_IPV4);
+    CHECK(obs.error == false);
+
+    M2MConnectionHandlerPimpl impl3 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::LwIP_IPv6);
+    impl3.init_socket();
+    CHECK(impl3._socket_stack == SOCKET_STACK_LWIP_IPV6);
+    CHECK(obs.error == false);
+
+    M2MConnectionHandlerPimpl impl4 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::Reserved);
+    impl4.init_socket();
+    CHECK(impl4._socket_stack == SOCKET_STACK_RESERVED);
+    CHECK(obs.error == false);
+
+    M2MConnectionHandlerPimpl impl5 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::Nanostack_IPv6);
+    impl5.init_socket();
+    CHECK(impl5._socket_stack == SOCKET_STACK_NANOSTACK_IPV6);
+    CHECK(obs.error == false);
+
+    M2MConnectionHandlerPimpl impl6 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::ATWINC_IPv4);
+    impl6.init_socket();
+    CHECK(impl6._socket_stack == SOCKET_STACK_ATWINC_IPV4);
+    CHECK(obs.error == false);
+
+    M2MConnectionHandlerPimpl impl7 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::NOT_SET,M2MInterface::Unknown);
+    common_stub::error = SOCKET_ERROR_ABORT;
+    impl7.init_socket();
+    CHECK(impl7._socket_stack == SOCKET_STACK_MAX);
+    CHECK(obs.error == true);
+
+    M2MConnectionHandlerPimpl impl8 = M2MConnectionHandlerPimpl(NULL,obs,NULL,M2MInterface::TCP,M2MInterface::LwIP_IPv4);
+    impl8.init_socket();
+    CHECK(impl8._socket_stack == SOCKET_STACK_LWIP_IPV4);
+    CHECK(obs.error == true);
+}
+
+void Test_M2MConnectionHandlerPimpl_mbed::test_close_socket()
+{
+    handler->close_socket();
+    CHECK(handler->_mbed_socket == NULL);
+
+    handler->init_socket();
+    handler->close_socket();
+    CHECK(handler->_mbed_socket == NULL);
+
+    M2MConnectionSecurity* conSec = new M2MConnectionSecurity(M2MConnectionSecurity::TLS);
+    handler->_security_impl = conSec;
+    handler->_use_secure_connection = true;
+    handler->init_socket();
+    handler->close_socket();
+    CHECK(handler->_mbed_socket == NULL);
+
+    handler->_security_impl = NULL;
+    delete conSec;
 }

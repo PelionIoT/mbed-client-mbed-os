@@ -81,6 +81,9 @@ bool M2MConnectionHandlerPimpl::resolve_server_address(const String& server_addr
                                                       const M2MSecurity* security)
 {
     tr_debug("M2MConnectionHandlerPimpl::resolve_server_address");
+    if (!_mbed_socket) {
+        return false;
+    }
     _security = security;
     socket_error_t err = SOCKET_ERROR_NONE;
     _server_address = server_address;
@@ -96,7 +99,7 @@ bool M2MConnectionHandlerPimpl::send_data(uint8_t *data,
                                      uint16_t data_len,
                                      sn_nsdl_addr_s *address)
 {
-    if( address == NULL || data == NULL){
+    if( address == NULL || data == NULL || !_mbed_socket){
         return false;
     }
     socket_error_t error = SOCKET_ERROR_NONE;
@@ -173,10 +176,10 @@ int M2MConnectionHandlerPimpl::send_to_socket(const unsigned char *buf, size_t l
 int M2MConnectionHandlerPimpl::receive_from_socket(unsigned char *buf, size_t len)
 {
     tr_debug("M2MConnectionHandlerPimpl::receive_from_socket");
-    socket_error_t error;
     if (!_mbed_socket) {
         return -1;
     }
+    socket_error_t error;
 
     if(is_tcp_connection()){
         error = _mbed_socket->recv(buf, &len);
@@ -296,7 +299,7 @@ void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_ad
     _socket_address->_stack = _network_stack;
     _socket_address->_port = _server_port;
 
-    if(is_tcp_connection()){
+    if(!is_tcp_connection()){
         socket_err = _mbed_socket->connect(_resolved_address, _server_port);
     }
     if( _security && SOCKET_ERROR_NONE == socket_err ){
