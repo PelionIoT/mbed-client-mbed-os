@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2015-2016 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -89,17 +89,17 @@ private:
     bool is_total_interval_passed();
 
 private:
-    M2MTimerObserver&   _observer;
-    bool                _single_shot;
-    uint64_t            _interval;
-    M2MTimerObserver::Type  _type;
+    mbed::Ticker        _ticker;
 
+    uint64_t            _interval;
     uint64_t            _intermediate_interval;
     uint64_t            _total_interval;
-    uint8_t             _status;
     uint64_t            _still_left;
 
-    mbed::Ticker        _ticker;
+    M2MTimerObserver&   _observer;
+    M2MTimerObserver::Type  _type;
+    uint8_t             _status;
+    bool                _single_shot;
 
     friend class M2MTimer;
     friend class Test_M2MTimerPimpl_mbed;
