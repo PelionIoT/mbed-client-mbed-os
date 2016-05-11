@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2015-2016 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 #include "mbed-client/m2mtimerobserver.h"
 
 M2MTimerPimpl::M2MTimerPimpl(M2MTimerObserver& observer)
-: _observer(observer),
-  _single_shot(true),
-  _interval(0),
-  _type(M2MTimerObserver::Notdefined),
+:  _interval(0),
   _intermediate_interval(0),
   _total_interval(0),
+  _still_left(0),
+  _observer(observer),
+  _type(M2MTimerObserver::Notdefined),
   _status(0),
-  _still_left(0)
+  _single_shot(true)
 {
 
 }
