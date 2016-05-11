@@ -99,6 +99,7 @@ bool M2MConnectionHandlerPimpl::send_data(uint8_t *data,
                                      uint16_t data_len,
                                      sn_nsdl_addr_s *address)
 {
+    tr_debug("M2MConnectionHandlerPimpl::send_data");
     if( address == NULL || data == NULL || !_mbed_socket){
         return false;
     }
@@ -299,7 +300,7 @@ void M2MConnectionHandlerPimpl::dns_handler(Socket */*socket*/, struct socket_ad
     _socket_address->_stack = _network_stack;
     _socket_address->_port = _server_port;
 
-    if(!is_tcp_connection()){
+    if(is_tcp_connection()){
         socket_err = _mbed_socket->connect(_resolved_address, _server_port);
     }
     if( _security && SOCKET_ERROR_NONE == socket_err ){
