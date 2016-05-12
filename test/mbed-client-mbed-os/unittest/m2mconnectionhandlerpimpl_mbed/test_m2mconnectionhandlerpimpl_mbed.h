@@ -51,6 +51,8 @@ public:
     void test_receive_handshake_handler();
     void test_dns_handler();
     void test_error_handler();
+    void test_init_socket();
+    void test_close_socket();
 
     M2MConnectionHandlerPimpl* handler;
     TestObserver *observer;

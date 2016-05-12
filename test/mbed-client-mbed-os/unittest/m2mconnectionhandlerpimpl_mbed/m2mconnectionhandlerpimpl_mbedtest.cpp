@@ -107,3 +107,13 @@ TEST(M2MConnectionHandlerPimpl_mbed, test_handle_connection_error)
 {
     handler->test_handle_connection_error();
 }
+
+TEST(M2MConnectionHandlerPimpl_mbed, test_init_socket)
+{
+    handler->test_init_socket();
+}
+
+TEST(M2MConnectionHandlerPimpl_mbed, test_close_socket)
+{
+    handler->test_close_socket();
+}

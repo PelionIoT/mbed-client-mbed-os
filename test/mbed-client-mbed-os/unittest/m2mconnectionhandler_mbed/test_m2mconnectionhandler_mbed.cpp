@@ -31,7 +31,7 @@ public:
                         uint16_t,
                         const M2MConnectionObserver::SocketAddress &){}
 
-    void socket_error(uint8_t error_code){}
+    void socket_error(uint8_t error_code, bool retry = true){}
 
     void address_ready(const M2MConnectionObserver::SocketAddress &,
                        M2MConnectionObserver::ServerType,
