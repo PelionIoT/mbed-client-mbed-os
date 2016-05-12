@@ -36,7 +36,6 @@ char* String::strdup(const char* s)
 String::String()
     : p( strdup("") )
 {
-    _return_value = '\0';
 }
 
 String::~String()
@@ -55,13 +54,11 @@ String::String(const String& s)
         size_      = s.size_;
         memcpy(p, s.p, size_ + 1);
     }
-    _return_value = '\0';
 }
 
 String::String(const char* s)
     : p(strdup(s))
 {
-    _return_value = '\0';
 }
 
 String& String::operator=(const char* s)
@@ -179,16 +176,6 @@ String String::substr(const size_type pos, size_type length) const
 
 
 // checked access, accessing the NUL at end is allowed
-char& String::at(const size_type i)
-{
-    if ( i <= strlen(p) ) {
-        _return_value = p[i];
-    } else {
-        _return_value = '\0';
-    }
-    return _return_value;
-}
-
 char String::at(const size_type i) const
 {
     if ( i <= strlen(p) ) {
@@ -234,6 +221,26 @@ String& String::append( const char* str, size_type n) {
         size_ = newlen;
     }
     return *this;
+}
+
+String& String::append_raw( const char* str, size_type n) {
+    if (str && n > 0) {
+        size_t newlen = size_ + n;
+        this->reserve( newlen );
+        memmove(p+size_, str, n); // p and s.p MAY overlap
+        p[newlen] = 0; // add NUL termination
+        size_ = newlen;
+    }
+    return *this;
+}
+
+void String::append_int(int param) {
+
+    // max len of "-9223372036854775808" plus zero termination
+    char conv_buff[20+1];
+
+    int len = itoa_c(param, conv_buff);
+    append_raw(conv_buff, len);
 }
 
 int String::compare( size_type pos, size_type len, const String& str ) const {
