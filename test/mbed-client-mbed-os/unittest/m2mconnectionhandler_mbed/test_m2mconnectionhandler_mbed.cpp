@@ -125,3 +125,18 @@ void Test_M2MConnectionHandler_mbed::test_handle_connection_error()
 {
     handler->handle_connection_error(4);
 }
+
+void Test_M2MConnectionHandler_mbed::test_set_platform_network_handler()
+{
+    handler->set_platform_network_handler(NULL);
+}
+
+void Test_M2MConnectionHandler_mbed::test_claim_mutex()
+{
+    handler->claim_mutex();
+}
+
+void Test_M2MConnectionHandler_mbed::test_release_mutex()
+{
+    handler->release_mutex();
+}

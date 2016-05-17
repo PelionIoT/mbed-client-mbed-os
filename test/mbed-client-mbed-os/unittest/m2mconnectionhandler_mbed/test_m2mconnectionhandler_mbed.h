@@ -45,6 +45,13 @@ public:
 
     void test_handle_connection_error();
 
+    void test_set_platform_network_handler();
+
+    void test_claim_mutex();
+
+    void test_release_mutex();
+
+
     M2MConnectionHandler* handler;
     TestObserver *observer;
 };
