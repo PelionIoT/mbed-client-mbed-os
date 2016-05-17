@@ -79,3 +79,14 @@ void M2MConnectionHandler::handle_connection_error(int error)
     _private_impl->handle_connection_error(error);
 }
 
+void M2MConnectionHandler::set_platform_network_handler(void */*handler*/)
+{
+}
+
+void M2MConnectionHandler::claim_mutex()
+{
+}
+
+void M2MConnectionHandler::release_mutex()
+{
+}
