@@ -76,3 +76,18 @@ TEST(M2MConnectionHandler_mbed, test_handle_connection_error)
 {
     handler->test_handle_connection_error();
 }
+
+TEST(M2MConnectionHandler_mbed, test_set_platform_network_handler)
+{
+    handler->test_set_platform_network_handler();
+}
+
+TEST(M2MConnectionHandler_mbed, test_claim_mutex)
+{
+    handler->test_claim_mutex();
+}
+
+TEST(M2MConnectionHandler_mbed, test_release_mutex)
+{
+    handler->test_release_mutex();
+}
