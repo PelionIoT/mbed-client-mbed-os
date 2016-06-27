@@ -223,6 +223,7 @@ void M2MConnectionHandlerPimpl::receive_handshake_handler(Socket */*socket*/)
             tr_debug("M2MConnectionHandlerPimpl::receive_handshake_handler - SSL handshake failed");
             _is_handshaking = false;
             _observer.socket_error(M2MConnectionHandler::SSL_CONNECTION_ERROR, false);
+            _error_reported = true;
             close_socket();
         }
     }

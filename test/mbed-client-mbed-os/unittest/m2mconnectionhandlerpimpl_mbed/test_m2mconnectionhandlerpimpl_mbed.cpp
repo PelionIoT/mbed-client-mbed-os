@@ -176,12 +176,12 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handler()
     handler->_binding_mode = M2MInterface::TCP_QUEUE;
     observer->dataAvailable = false;
     handler->_network_stack = M2MInterface::Nanostack_IPv6;
-    handler->receive_handler(NULL);    
+    handler->receive_handler(NULL);
     CHECK(observer->error == false);
     CHECK(observer->dataAvailable == false);
 
     common_stub::error = SOCKET_ERROR_BAD_FAMILY;
-    handler->receive_handler(NULL);    
+    handler->receive_handler(NULL);
     CHECK(observer->error == false);
     CHECK(observer->dataAvailable == false);
 
@@ -232,11 +232,14 @@ void Test_M2MConnectionHandlerPimpl_mbed::test_receive_handshake_handler()
     m2mconnectionsecurityimpl_stub::int_value = 0;
     handler->receive_handshake_handler(NULL);
     CHECK(false == handler->_is_handshaking);
+    CHECK(true == observer->addressReady);
 
     handler->_is_handshaking = true;
     m2mconnectionsecurityimpl_stub::int_value = -10;
     handler->receive_handshake_handler(NULL);
     CHECK(false == handler->_is_handshaking);
+    CHECK(true == handler->_error_reported);
+    CHECK(true == observer->error)
 }
 
 void Test_M2MConnectionHandlerPimpl_mbed::test_dns_handler()
