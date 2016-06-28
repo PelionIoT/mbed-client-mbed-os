@@ -25,7 +25,7 @@ extern "C" {
  * \param ip6addr IPv6 address.
  * \p buffer to write string to.
  */
-void ip6tos(const void *ip6addr, char *p);
+uint_fast8_t ip6tos(const void *ip6addr, char *p);
 
 /**
  * Convert numeric IPv6 address string to a binary.
