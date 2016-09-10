@@ -110,7 +110,8 @@ sn_coap_hdr_s* M2MObject::handle_put_request(nsdl_s *,
 sn_coap_hdr_s* M2MObject::handle_post_request(nsdl_s *,
                                    sn_coap_hdr_s *,
                                    M2MObservationHandler *,
-                                   bool &)
+                                   bool &,
+                                   sn_nsdl_addr_s *)
 {
     return m2mobject_stub::header;
 }
