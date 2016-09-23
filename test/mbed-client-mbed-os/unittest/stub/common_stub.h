@@ -41,7 +41,6 @@ namespace common_stub
     extern sn_nsdl_resource_info_s *resource;
     extern pthread_t thread;
     extern const char *char_value;
-    extern size_t size;
     void clear();
 }
 

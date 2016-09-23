@@ -32,7 +32,6 @@ sn_coap_hdr_s *common_stub::coap_header;
 sn_nsdl_resource_info_s *common_stub::resource;
 pthread_t common_stub::thread;
 const char* common_stub::char_value;
-size_t common_stub::size;
 
 using namespace mbed;
 using namespace mbed::Sockets::v0;
@@ -53,7 +52,6 @@ void common_stub::clear()
     resource = NULL;
     addrinfo = NULL;
     char_value = NULL;
-    size = 0;
 }
 
 UDPSocket::UDPSocket(socket_stack_t stack) :Socket(stack)
@@ -114,12 +112,25 @@ uint16_t sn_nsdl_update_registration(struct nsdl_s *,uint8_t *, uint8_t)
     return common_stub::uint_value;
 }
 
+uint16_t sn_nsdl_send_observation_notification_with_uri_path(struct nsdl_s *, uint8_t *, uint8_t,
+                                                    uint8_t *, uint16_t,
+                                                    uint8_t *, uint8_t,
+                                                    sn_coap_msg_type_e , uint8_t,
+                                                    uint8_t *, uint16_t)
+{
+    return common_stub::uint_value;
+}
 uint16_t sn_nsdl_send_observation_notification(struct nsdl_s *, uint8_t *, uint8_t,
                                                     uint8_t *, uint16_t,
                                                     uint8_t *, uint8_t,
                                                     sn_coap_msg_type_e , uint8_t)
 {
     return common_stub::uint_value;
+}
+
+int8_t sn_nsdl_set_endpoint_location(struct nsdl_s *, uint8_t *, uint8_t)
+{
+    return common_stub::int_value;
 }
 
 int8_t sn_nsdl_destroy(struct nsdl_s *handle)
@@ -147,13 +158,14 @@ int8_t sn_nsdl_exec(struct nsdl_s *, uint32_t)
     return common_stub::int_value;
 }
 
+int8_t sn_nsdl_set_retransmission_parameters(struct nsdl_s *, uint8_t, uint8_t)
+{
+    return common_stub::int_value;
+}
+
 void sn_nsdl_release_allocated_coap_msg_mem(struct nsdl_s *, sn_coap_hdr_s *header)
 {
     if(header && header != common_stub::coap_header){
-        if( header->content_type_ptr ){
-            free(header->content_type_ptr);
-            header->content_type_ptr = NULL;
-        }
         if( header->options_list_ptr){
             free(header->options_list_ptr);
             header->options_list_ptr = NULL;
@@ -161,6 +173,14 @@ void sn_nsdl_release_allocated_coap_msg_mem(struct nsdl_s *, sn_coap_hdr_s *head
         free(header);
         header = NULL;
     }
+}
+
+sn_coap_options_list_s *sn_nsdl_alloc_options_list(struct nsdl_s *handle, sn_coap_hdr_s *coap_msg_ptr)
+{
+    if( common_stub::coap_header ) {
+        return common_stub::coap_header->options_list_ptr;
+    }
+    return NULL;
 }
 
 int8_t sn_nsdl_create_resource(struct nsdl_s *, sn_nsdl_resource_info_s *)
@@ -183,7 +203,7 @@ int8_t sn_nsdl_update_resource(struct nsdl_s *, sn_nsdl_resource_info_s *)
     return common_stub::int_value;
 }
 
-int8_t set_NSP_address(struct nsdl_s *, uint8_t *, uint16_t, sn_nsdl_addr_type_e)
+int8_t set_NSP_address_2(struct nsdl_s *, uint8_t *, uint8_t, uint16_t, sn_nsdl_addr_type_e)
 {
     return common_stub::int_value;
 }
@@ -227,8 +247,12 @@ int8_t sn_coap_protocol_set_retransmission_parameters(uint8_t, uint8_t)
 }
 
 // IP6String.h
-uint_fast8_t ip6tos(const void *, char *)
+uint_fast8_t ip6tos(const void *ip6addr, char *p)
 {
+    // Just set at least something there, or the valgrind will scream when
+    // client tries to use the result string.
+    p[0] = '\0';
+    return 0;
 }
 
 //Socket
@@ -310,15 +334,8 @@ socket_error_t Socket::close()
     return common_stub::error;
 }
 
-socket_error_t Socket::recv(void *buffer, size_t * size)
+socket_error_t Socket::recv(void * , size_t *)
 {
-    unsigned char test[4];
-    test[0] = '\0';
-    test[1] = '\0';
-    test[2] = '\0';
-    test[3] = '1';
-    memcpy(buffer, test, 4);
-    *size = common_stub::size;
     return common_stub::error;
 }
 socket_error_t Socket::recv_from(void * , size_t *, SocketAddr *, uint16_t *)
